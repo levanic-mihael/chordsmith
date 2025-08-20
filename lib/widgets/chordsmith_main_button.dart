@@ -15,7 +15,7 @@ class ChordsmithMainButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double buttonHeight = 64.0;
-    final Color buttonColor = Theme.of(context).colorScheme.primary.withOpacity(0.12);
+    final Color buttonColor = Theme.of(context).colorScheme.primary.withAlpha(12);
     final Color iconColor = Theme.of(context).colorScheme.primary;
 
     return SizedBox(
