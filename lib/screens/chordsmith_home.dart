@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/chordsmith_app_bar.dart';
 import '../widgets/chordsmith_main_button.dart';
 import 'search_screen.dart';
+import 'create_chord_screen.dart';
 
 class ChordsmithHome extends StatelessWidget {
   const ChordsmithHome({super.key});
@@ -13,7 +14,7 @@ class ChordsmithHome extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<_MainAction> actions = [
       _MainAction(label: 'Search', icon: Icons.search, onTap: () {Navigator.of(context).push(MaterialPageRoute(builder: (context) => const SearchScreen()));}),
-      _MainAction(label: 'Create', icon: Icons.add, onTap: () {/* TODO */}),
+      _MainAction(label: 'Create', icon: Icons.add, onTap: () {Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateChordScreen()));}),
       _MainAction(label: 'Update', icon: Icons.edit, onTap: () {/* TODO */}),
       _MainAction(label: 'Share', icon: Icons.share, onTap: () {/* TODO */}),
       _MainAction(label: 'Favorites', icon: Icons.star, onTap: () {/* TODO */}),
