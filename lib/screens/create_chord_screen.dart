@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+
 import '../database/chord_database.dart';
-import '../models/chord_models.dart'; // Tonality, Mode, ChordType
+import '../models/chord_models.dart';
 
 enum ChordCreateType { custom, alternative }
 
 class CreateChordScreen extends StatefulWidget {
   const CreateChordScreen({super.key});
+
   @override
-  State<CreateChordScreen> createState() => _CreateChordScreenState();
+  State createState() => _CreateChordScreenState();
 }
 
 class _CreateChordScreenState extends State<CreateChordScreen> {
@@ -18,12 +20,14 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
   List<Tonality> tonalities = [];
   List<Mode> modes = [];
   List<ChordType> chordTypes = [];
+
   int? toneId;
   int? modeId;
   int? typeId;
 
   final int fretCount = 7;
-  late List<List<int>> neckMarks; // Using int marks instead of string
+
+  late List<List<int>> neckMarks; // int marks instead of string
 
   int fretboardOffset = 0;
 
@@ -44,14 +48,23 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
 
   void _loadMeta() async {
     final db = await ChordDatabase.instance.database;
+
     final tonalRes = await db.query('Tonality');
     final modeRes = await db.query('Mode');
     final chordTypeRes = await db.query('ChordType');
+
     if (!mounted) return;
+
     setState(() {
-      tonalities = tonalRes.map((e) => Tonality(id: e['id'] as int, name: e['name'] as String)).toList();
-      modes = modeRes.map((e) => Mode(id: e['id'] as int, name: e['name'] as String)).toList();
-      chordTypes = chordTypeRes.map((e) => ChordType(id: e['id'] as int, name: e['name'] as String)).toList();
+      tonalities = tonalRes
+          .map((e) => Tonality(id: e['id'] as int, name: e['name'] as String))
+          .toList();
+      modes = modeRes
+          .map((e) => Mode(id: e['id'] as int, name: e['name'] as String))
+          .toList();
+      chordTypes = chordTypeRes
+          .map((e) => ChordType(id: e['id'] as int, name: e['name'] as String))
+          .toList();
     });
   }
 
@@ -72,11 +85,11 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
       int val = neckMarks[stringIdx][fretIdx];
       if (fretIdx == 0) {
         if (val == noMark) {
-          neckMarks[stringIdx][0] = openMark;  // Open string
+          neckMarks[stringIdx][0] = openMark;
         } else if (val == openMark) {
-          neckMarks[stringIdx][fretIdx] = muteMark; // Muted string
+          neckMarks[stringIdx][fretIdx] = muteMark;
         } else {
-          neckMarks[stringIdx][fretIdx] = noMark;   // Remove mark
+          neckMarks[stringIdx][fretIdx] = noMark;
         }
         for (int f = 1; f < fretCount; f++) {
           neckMarks[stringIdx][f] = noMark;
@@ -120,7 +133,6 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
       } else if (val == openMark) {
         result.add("0");
       } else {
-        // Find first fret marked
         int fretMark = noMark;
         for (int f = 1; f < fretCount; f++) {
           int mark = neckMarks[stringIdx][f];
@@ -145,28 +157,34 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
       final name = _nameController.text.trim();
       if (name.isEmpty) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Enter custom chord name")));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Enter custom chord name")));
         return;
       }
       await ChordDatabase.instance.insertCustomChord(name, tabs);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Custom chord saved.")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Custom chord saved.")));
       setState(_resetFretboard);
     } else if (createType == ChordCreateType.alternative) {
       if (toneId == null || modeId == null || typeId == null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Select tone, mode, type.")));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Select tone, mode, type.")));
         return;
       }
-      final baseChord = await ChordDatabase.instance.getStandardChord(toneId!, modeId!, typeId!);
+      final baseChord =
+      await ChordDatabase.instance.getStandardChord(toneId!, modeId!, typeId!);
       if (!mounted) return;
       if (baseChord == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Standard chord not found.")));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Standard chord not found.")));
         return;
       }
       await ChordDatabase.instance.insertAlternativeChord(baseChord['id'] as int, tabs);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Alternative chord saved.")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Alternative chord saved.")));
       setState(_resetFretboard);
     }
   }
@@ -174,43 +192,38 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
   Widget _buildFretboard() {
     final stringNames = ['E', 'A', 'D', 'G', 'B', 'E'];
     final circleColor = Colors.blue.shade700;
-    final textStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14);
-
+    final textStyle =
+    const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14);
+    const firstColWidth = 25.0;
+    const otherColWidth = 50.0;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24), // match frame horizontal margin
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // String names column
           Column(
             mainAxisSize: MainAxisSize.min,
             children: List.generate(6, (i) {
               return Container(
-                height: 32, // reduced vertical height per string
+                height: 28,
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.only(right: 8),
-                child: Text(
-                  stringNames[i],
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
+                child: Text(stringNames[i], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
               );
             }),
           ),
-
-          // Fretboard expanded horizontally
           Expanded(
             child: Column(
               children: List.generate(6, (stringIdx) {
                 return SizedBox(
-                  height: 32, // reduced height to make it less tall
+                  height: 28,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(fretCount, (fretIdx) {
-                      int val = neckMarks[stringIdx][fretIdx];
+                      final int val = neckMarks[stringIdx][fretIdx];
                       bool isCircle = false;
                       String? circleText;
                       bool isMuted = false;
-
                       if (fretIdx == 0) {
                         if (val == openMark) {
                           isCircle = true;
@@ -220,16 +233,16 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
                           circleText = "X";
                           isMuted = true;
                         }
-                      } else if (val != noMark) {
-                        isCircle = true;
-                        circleText = "${val}";
+                      } else if (val > 0) {
+                        if (val == fretIdx + fretboardOffset) {
+                          isCircle = true;
+                          circleText = "$val";
+                        }
                       }
-
-                      final isFirstColumn = fretIdx == 0;
                       return GestureDetector(
                         onTap: () => _onFretTap(stringIdx, fretIdx),
                         child: Container(
-                          width: isFirstColumn ? 25 : 50,
+                          width: fretIdx == 0 ? firstColWidth : otherColWidth,
                           height: double.infinity,
                           margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
                           decoration: BoxDecoration(
@@ -247,17 +260,15 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color:
-                                  (isMuted ? Colors.red : circleColor).withOpacity(0.5),
-                                  blurRadius: 4,
-                                  offset: const Offset(1, 1),
-                                )
+                                    color: (isMuted ? Colors.red : circleColor).withOpacity(0.5),
+                                    blurRadius: 4,
+                                    offset: const Offset(1, 1)),
                               ],
                             ),
                             child: Center(child: Text(circleText!, style: textStyle)),
                           )
                               : Text(
-                            isFirstColumn ? "" : _fretDisplay(fretIdx),
+                            fretIdx == 0 ? "" : "${fretIdx + fretboardOffset}",
                             style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
                           ),
                         ),
@@ -272,7 +283,6 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
       ),
     );
   }
-
 
   Widget _buildMenu() {
     return Row(
@@ -338,18 +348,12 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        IconButton(
-          onPressed: fretboardOffset > 0 ? _scrollLeft : null,
-          icon: const Icon(Icons.arrow_left),
-        ),
+        IconButton(onPressed: fretboardOffset > 0 ? _scrollLeft : null, icon: const Icon(Icons.arrow_left)),
         Text(
           "Frets: 0, ${1 + fretboardOffset} ... ${fretCount - 1 + fretboardOffset}",
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        IconButton(
-          onPressed: _scrollRight,
-          icon: const Icon(Icons.arrow_right),
-        )
+        IconButton(onPressed: _scrollRight, icon: const Icon(Icons.arrow_right)),
       ],
     );
   }
@@ -360,44 +364,51 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
       appBar: AppBar(title: const Text("Create Chord")),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildMenu(),
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 24), child: _buildMenu()),
               const SizedBox(height: 18),
               if (createType == ChordCreateType.custom)
-                Column(
-                  children: [
-                    const Text("Enter name for new chord:"),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-                      child: TextField(
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      const Text("Enter name for new chord:"),
+                      const SizedBox(height: 10),
+                      TextField(
                         controller: _nameController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                        ),
+                        decoration: const InputDecoration(border: OutlineInputBorder()),
                         textAlign: TextAlign.center,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              if (createType == ChordCreateType.alternative) ...[
-                const Text("Select chord to create alternative for:"),
-                _buildAltSpecifier(),
-              ],
+              if (createType == ChordCreateType.alternative)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(children: [
+                    const Text("Select chord to create alternative for:"),
+                    const SizedBox(height: 10),
+                    _buildAltSpecifier(),
+                  ]),
+                ),
               const SizedBox(height: 14),
               _buildScroller(),
-              const SizedBox(height: 3),
-              _buildFretboard(),
-              const SizedBox(height: 14),
-              ElevatedButton(
-                onPressed: _saveChord,
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 36, vertical: 12),
-                  child: Text("Save Chord", style: TextStyle(fontSize: 18)),
+              const SizedBox(height: 6),
+              Container(width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 24), child: _buildFretboard()),
+              const SizedBox(height: 18),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: ElevatedButton(
+                  onPressed: _saveChord,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 36, vertical: 12),
+                    child: Text("Save Chord", style: TextStyle(fontSize: 18)),
+                  ),
                 ),
-              ),
+              )
             ],
           ),
         ),

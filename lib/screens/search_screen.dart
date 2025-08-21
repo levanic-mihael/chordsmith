@@ -1,55 +1,43 @@
 import 'package:flutter/material.dart';
+
 import '../database/chord_database.dart';
-import '../models/chord_models.dart'; // Tonality, Mode, ChordType
+import '../models/chord_models.dart';
 
-
-// Toggle between standard (built-in + alternatives) vs custom chords
 enum SearchMode { standard, custom }
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
+
   @override
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  // Metadata
   List<Tonality> tonalities = [];
   List<Mode> modes = [];
   List<ChordType> chordTypes = [];
 
-  // Selection states
   int? selectedTonalityId;
   int? selectedModeId;
   int? selectedChordTypeId;
 
-  // Enabled (auto-filtered) for standard search
   Set<int> enabledModeIds = {};
   Set<int> enabledChordTypeIds = {};
 
-  // Search mode
   SearchMode searchMode = SearchMode.standard;
 
-  // Standard chord and alternatives
-  Map<String, dynamic>? standardChord; // row from Chord table
-  List<Map<String, dynamic>> alternatives = []; // rows from AlternativeChord
-  int selectedAlternativeIdx = 0; // 0 = standard, 1.. = Alt N
+  Map<String, Object?>? standardChord;
+  List<Map<String, Object?>> alternatives = [];
+  int selectedAlternativeIdx = 0;
 
-  // Custom chords list & selection
-  List<Map<String, dynamic>> customChords = [];
-  Map<String, dynamic>? selectedCustomChord;
+  List<Map<String, Object?>> customChords = [];
+  Map<String, Object?>? selectedCustomChord;
 
-  // Current display tabs (the one shown in the graphic)
-  String? displayTabs; // "EADGBE", e.g. "X 2 2 1 0 0"
-
-  // UI state
+  String? displayTabs;
   String feedbackMessage = '';
   bool loading = true;
 
-  // Visual constants
-  static const int fretCount = 7; // 0..6 columns
-  static const double firstColWidth = 25;
-  static const double otherColWidth = 50;
+  static const int fretCount = 7;
 
   @override
   void initState() {
@@ -58,21 +46,26 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _loadMeta() async {
-    // Load metadata lists
     final db = await ChordDatabase.instance.database;
+
     final tonalRes = await db.query('Tonality');
     final modeRes = await db.query('Mode');
     final chordTypeRes = await db.query('ChordType');
 
     setState(() {
-      tonalities = tonalRes.map((e) => Tonality(id: e['id'] as int, name: e['name'] as String)).toList();
-      modes = modeRes.map((e) => Mode(id: e['id'] as int, name: e['name'] as String)).toList();
-      chordTypes = chordTypeRes.map((e) => ChordType(id: e['id'] as int, name: e['name'] as String)).toList();
+      tonalities = tonalRes
+          .map((e) => Tonality(id: e['id'] as int, name: e['name'] as String))
+          .toList();
+      modes = modeRes
+          .map((e) => Mode(id: e['id'] as int, name: e['name'] as String))
+          .toList();
+      chordTypes = chordTypeRes
+          .map((e) => ChordType(id: e['id'] as int, name: e['name'] as String))
+          .toList();
       loading = false;
     });
   }
 
-  // When tone changes, recompute what modes/types exist for Standard mode
   Future<void> _updateEnabledOptions() async {
     if (selectedTonalityId == null) {
       setState(() {
@@ -81,6 +74,7 @@ class _SearchScreenState extends State<SearchScreen> {
       });
       return;
     }
+
     final db = await ChordDatabase.instance.database;
 
     final rows = await db.rawQuery('''
@@ -93,6 +87,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     final modeSet = <int>{};
     final chordSet = <int>{};
+
     for (final row in rows) {
       final m = row['mode_id'];
       final c = row['chord_type_id'];
@@ -107,11 +102,12 @@ class _SearchScreenState extends State<SearchScreen> {
       if (selectedModeId != null && !enabledModeIds.contains(selectedModeId!)) {
         selectedModeId = null;
       }
-      if (selectedChordTypeId != null && !enabledChordTypeIds.contains(selectedChordTypeId!)) {
+
+      if (selectedChordTypeId != null &&
+          !enabledChordTypeIds.contains(selectedChordTypeId!)) {
         selectedChordTypeId = null;
       }
 
-      // Reset current display when options change
       standardChord = null;
       alternatives = [];
       selectedAlternativeIdx = 0;
@@ -120,32 +116,31 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  // Load base standard chord + alternatives for current selection
   Future<void> _loadStandardChordAndAlternatives() async {
-    if (selectedTonalityId == null || selectedModeId == null || selectedChordTypeId == null) return;
+    if (selectedTonalityId == null ||
+        selectedModeId == null ||
+        selectedChordTypeId == null) {return;}
 
     final base = await ChordDatabase.instance.getStandardChord(
-      selectedTonalityId!, selectedModeId!, selectedChordTypeId!,
-    );
+        selectedTonalityId!, selectedModeId!, selectedChordTypeId!);
 
-    List<Map<String, dynamic>> alts = [];
+    List<Map<String, Object?>> alts = [];
     String? tabs;
 
     if (base != null) {
       alts = await ChordDatabase.instance.getAlternativeChords(base['id'] as int);
-      tabs = base['tabs_frets'] as String;
+      tabs = base['tabs_frets'] as String?;
     }
 
     setState(() {
       standardChord = base;
       alternatives = alts;
-      selectedAlternativeIdx = 0; // default to standard
+      selectedAlternativeIdx = 0;
       displayTabs = tabs;
       feedbackMessage = base == null ? 'No such chord found' : '';
     });
   }
 
-  // Switch display to selected alternative index (0 = standard)
   void _selectAlternative(int idx) {
     setState(() {
       selectedAlternativeIdx = idx;
@@ -153,14 +148,15 @@ class _SearchScreenState extends State<SearchScreen> {
         displayTabs = standardChord?['tabs_frets'] as String?;
       } else {
         final alt = alternatives[idx - 1];
-        displayTabs = alt['tabs_frets'] as String;
+        displayTabs = alt['tabs_frets'] as String?;
       }
     });
   }
 
-  // Standard "Show Chord" action: fetch base + alts, show base by default
   Future<void> _showStandardChord() async {
-    if (selectedTonalityId == null || selectedModeId == null || selectedChordTypeId == null) {
+    if (selectedTonalityId == null ||
+        selectedModeId == null ||
+        selectedChordTypeId == null) {
       setState(() {
         feedbackMessage = 'Please select tone, mode, and chord type.';
         displayTabs = null;
@@ -170,7 +166,6 @@ class _SearchScreenState extends State<SearchScreen> {
     await _loadStandardChordAndAlternatives();
   }
 
-  // Custom mode: load list, and allow picking one to display
   Future<void> _enterCustomMode() async {
     final list = await ChordDatabase.instance.getAllCustomChords();
     setState(() {
@@ -190,7 +185,6 @@ class _SearchScreenState extends State<SearchScreen> {
       displayTabs = null;
       feedbackMessage = '';
     });
-    // Keep current selections; re-evaluate enabled options if tone was selected
     await _updateEnabledOptions();
   }
 
@@ -233,8 +227,6 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  // ---------- UI BUILDERS ----------
-
   Widget _buildSearchModeToggle() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -242,16 +234,15 @@ class _SearchScreenState extends State<SearchScreen> {
         ElevatedButton(
           onPressed: () => _enterStandardMode(),
           style: ElevatedButton.styleFrom(
-            backgroundColor: searchMode == SearchMode.standard ? Colors.blue : Colors.grey,
-          ),
+              backgroundColor:
+              searchMode == SearchMode.standard ? Colors.blue : Colors.grey),
           child: const Text('Standard'),
         ),
         const SizedBox(width: 12),
         ElevatedButton(
           onPressed: () => _enterCustomMode(),
           style: ElevatedButton.styleFrom(
-            backgroundColor: searchMode == SearchMode.custom ? Colors.blue : Colors.grey,
-          ),
+              backgroundColor: searchMode == SearchMode.custom ? Colors.blue : Colors.grey),
           child: const Text('Custom'),
         ),
       ],
@@ -279,7 +270,9 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: enabled ? (selected ? Colors.blue.shade700 : Colors.white) : Colors.grey.shade300,
+              color: enabled
+                  ? (selected ? Colors.blue.shade700 : Colors.white)
+                  : Colors.grey.shade300,
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: enabled
@@ -323,7 +316,7 @@ class _SearchScreenState extends State<SearchScreen> {
           getLabel: (m) => m.name,
           getId: (m) => m.id,
           onTap: _selectMode,
-          isEnabled: searchMode == SearchMode.standard ? (id) => enabledModeIds.contains(id) : null,
+          isEnabled: (id) => enabledModeIds.contains(id),
         ),
         const SizedBox(height: 24),
         const Text('Select Chord Type:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
@@ -334,7 +327,7 @@ class _SearchScreenState extends State<SearchScreen> {
           getLabel: (c) => c.name,
           getId: (c) => c.id,
           onTap: _selectChordType,
-          isEnabled: searchMode == SearchMode.standard ? (id) => enabledChordTypeIds.contains(id) : null,
+          isEnabled: (id) => enabledChordTypeIds.contains(id),
         ),
         const SizedBox(height: 28),
         ElevatedButton(
@@ -387,6 +380,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildCustomList() {
     if (searchMode != SearchMode.custom) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -414,29 +408,23 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  // 6 (rows x strings) x 7 (cols x frets) display
   Widget _buildGuitarNeck() {
     if (displayTabs == null) return const SizedBox.shrink();
 
-    // Convert to highE..lowE for UI top..bottom
-    final parts = displayTabs!.split(' '); // lowE..highE coming from DB standard format
+    final parts = displayTabs!.split(' '); // lowE..highE
     if (parts.length != 6) return const SizedBox.shrink();
 
-    // Invert to high E (top) -> low E (bottom)
-    final byStringTopToBottom = List<String>.generate(6, (i) => parts[5 - i]);
-
+    final byStringTopToBottom = List.generate(6, (i) => parts[5 - i]);
     final circleColor = Colors.blue.shade700;
     final textStyle = const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14);
-
     final stringNames = ['E', 'A', 'D', 'G', 'B', 'E'];
     const double firstColWidth = 25;
     const double otherColWidth = 50;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24), // Match surrounding frame margin
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Center(
         child: AspectRatio(
-          // 7 columns wide vs 6 rows tall; adjust vertical ratio for less height
           aspectRatio: 7 / (6 * 0.35),
           child: Container(
             padding: const EdgeInsets.all(8),
@@ -447,37 +435,30 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left side: string names vertically aligned
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: List.generate(6, (row) {
                     return Container(
-                      height: 28, // reduce height for compactness
+                      height: 28,
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.only(right: 8),
-                      child: Text(
-                        stringNames[row],
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
+                      child: Text(stringNames[row], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                     );
                   }),
                 ),
-
-                // Fretboard grid expanding horizontally
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(6, (row) {
                       final fretVal = byStringTopToBottom[row];
                       return SizedBox(
-                        height: 28, // reduced height per row
+                        height: 28,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(fretCount, (col) {
                             bool isCircle = false;
                             String? circleText;
                             bool isMuted = false;
-
                             if (col == 0) {
                               if (fretVal == 'X') {
                                 isCircle = true;
@@ -494,7 +475,6 @@ class _SearchScreenState extends State<SearchScreen> {
                                 circleText = '$col';
                               }
                             }
-
                             return Container(
                               width: col == 0 ? firstColWidth : otherColWidth,
                               height: double.infinity,
@@ -546,7 +526,6 @@ class _SearchScreenState extends State<SearchScreen> {
     if (loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-
     return Scaffold(
       appBar: AppBar(title: const Text('Chordsmith Search'), centerTitle: true),
       body: Center(
@@ -558,22 +537,15 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               _buildSearchModeToggle(),
               const SizedBox(height: 16),
-
-              // Standard selection or Custom list
               if (searchMode == SearchMode.standard) _buildStandardSelectors(),
               if (searchMode == SearchMode.custom) _buildCustomList(),
-
-              // Feedback
               if (feedbackMessage.isNotEmpty) ...[
                 const SizedBox(height: 18),
                 Text(feedbackMessage, style: const TextStyle(color: Colors.red, fontSize: 16)),
               ],
-
-              // Chord display
               if (displayTabs != null) ...[
                 const SizedBox(height: 18),
                 SizedBox(width: MediaQuery.of(context).size.width * 0.9, child: _buildGuitarNeck()),
-                // Alternatives toggle only for Standard mode
                 _buildAlternativeTabsToggle(),
               ],
             ],
@@ -583,4 +555,3 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 }
-
