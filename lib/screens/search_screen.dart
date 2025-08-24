@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../database/chord_database.dart';
 import '../models/chord_models.dart';
+import '../widgets/guitar_fretboard.dart';
 
 enum SearchMode { standard, custom }
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  const SearchScreen({Key? key}) : super(key: key);
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  _SearchScreenState createState() => _SearchScreenState();
 }
 
 class _SearchScreenState extends State<SearchScreen> {
@@ -26,15 +27,16 @@ class _SearchScreenState extends State<SearchScreen> {
 
   SearchMode searchMode = SearchMode.standard;
 
-  Map<String, Object?>? standardChord;
-  List<Map<String, Object?>> alternatives = [];
+  Map<String, dynamic>? standardChord;
+  List<Map<String, dynamic>> alternatives = [];
   int selectedAlternativeIdx = 0;
 
-  List<Map<String, Object?>> customChords = [];
-  Map<String, Object?>? selectedCustomChord;
+  List<Map<String, dynamic>> customChords = [];
+  Map<String, dynamic>? selectedCustomChord;
 
   String? displayTabs;
   String feedbackMessage = '';
+
   bool loading = true;
 
   static const int fretCount = 7;
@@ -47,7 +49,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> _loadMeta() async {
     final db = await ChordDatabase.instance.database;
-
     final tonalRes = await db.query('Tonality');
     final modeRes = await db.query('Mode');
     final chordTypeRes = await db.query('ChordType');
@@ -64,6 +65,8 @@ class _SearchScreenState extends State<SearchScreen> {
           .toList();
       loading = false;
     });
+
+    await _updateEnabledOptions();
   }
 
   Future<void> _updateEnabledOptions() async {
@@ -76,18 +79,16 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     final db = await ChordDatabase.instance.database;
-
     final rows = await db.rawQuery('''
-      SELECT DISTINCT Mode.id AS mode_id, ChordType.id AS chord_type_id
-      FROM Chord
-      JOIN Mode ON Chord.mode_id = Mode.id
-      JOIN ChordType ON Chord.type_id = ChordType.id
-      WHERE Chord.tonality_id = ?
-    ''', [selectedTonalityId]);
+        SELECT DISTINCT Mode.id AS mode_id, ChordType.id AS chord_type_id
+        FROM Chord
+        JOIN Mode ON Chord.mode_id = Mode.id
+        JOIN ChordType ON Chord.type_id = ChordType.id
+        WHERE Chord.tonality_id = ?
+      ''', [selectedTonalityId]);
 
     final modeSet = <int>{};
     final chordSet = <int>{};
-
     for (final row in rows) {
       final m = row['mode_id'];
       final c = row['chord_type_id'];
@@ -102,9 +103,7 @@ class _SearchScreenState extends State<SearchScreen> {
       if (selectedModeId != null && !enabledModeIds.contains(selectedModeId!)) {
         selectedModeId = null;
       }
-
-      if (selectedChordTypeId != null &&
-          !enabledChordTypeIds.contains(selectedChordTypeId!)) {
+      if (selectedChordTypeId != null && !enabledChordTypeIds.contains(selectedChordTypeId!)) {
         selectedChordTypeId = null;
       }
 
@@ -119,26 +118,26 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<void> _loadStandardChordAndAlternatives() async {
     if (selectedTonalityId == null ||
         selectedModeId == null ||
-        selectedChordTypeId == null) {return;}
+        selectedChordTypeId == null) return;
 
     final base = await ChordDatabase.instance.getStandardChord(
         selectedTonalityId!, selectedModeId!, selectedChordTypeId!);
 
-    List<Map<String, Object?>> alts = [];
+    List<Map<String, dynamic>> alts = [];
     String? tabs;
 
     if (base != null) {
       alts = await ChordDatabase.instance.getAlternativeChords(base['id'] as int);
       tabs = base['tabs_frets'] as String?;
-    }
 
-    setState(() {
-      standardChord = base;
-      alternatives = alts;
-      selectedAlternativeIdx = 0;
-      displayTabs = tabs;
-      feedbackMessage = base == null ? 'No such chord found' : '';
-    });
+      setState(() {
+        standardChord = base;
+        alternatives = alts;
+        selectedAlternativeIdx = 0;
+        displayTabs = tabs;
+        feedbackMessage = base == null ? 'No such chord found' : '';
+      });
+    }
   }
 
   void _selectAlternative(int idx) {
@@ -147,8 +146,7 @@ class _SearchScreenState extends State<SearchScreen> {
       if (idx == 0) {
         displayTabs = standardChord?['tabs_frets'] as String?;
       } else {
-        final alt = alternatives[idx - 1];
-        displayTabs = alt['tabs_frets'] as String?;
+        displayTabs = alternatives[idx - 1]['tabs_frets'] as String?;
       }
     });
   }
@@ -185,6 +183,7 @@ class _SearchScreenState extends State<SearchScreen> {
       displayTabs = null;
       feedbackMessage = '';
     });
+
     await _updateEnabledOptions();
   }
 
@@ -232,7 +231,7 @@ class _SearchScreenState extends State<SearchScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
-          onPressed: () => _enterStandardMode(),
+          onPressed: _enterStandardMode,
           style: ElevatedButton.styleFrom(
               backgroundColor:
               searchMode == SearchMode.standard ? Colors.blue : Colors.grey),
@@ -240,9 +239,10 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         const SizedBox(width: 12),
         ElevatedButton(
-          onPressed: () => _enterCustomMode(),
+          onPressed: _enterCustomMode,
           style: ElevatedButton.styleFrom(
-              backgroundColor: searchMode == SearchMode.custom ? Colors.blue : Colors.grey),
+              backgroundColor:
+              searchMode == SearchMode.custom ? Colors.blue : Colors.grey),
           child: const Text('Custom'),
         ),
       ],
@@ -255,7 +255,7 @@ class _SearchScreenState extends State<SearchScreen> {
     required String Function(T) getLabel,
     required int Function(T) getId,
     required void Function(int) onTap,
-    bool Function(int id)? isEnabled,
+    bool Function(int)? isEnabled,
   }) {
     return Wrap(
       spacing: 8,
@@ -265,6 +265,7 @@ class _SearchScreenState extends State<SearchScreen> {
         final id = getId(item);
         final enabled = isEnabled == null ? true : isEnabled(id);
         final selected = selectedId == id;
+
         return GestureDetector(
           onTap: enabled ? () => onTap(id) : null,
           child: Container(
@@ -283,7 +284,8 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Text(
               getLabel(item),
               style: TextStyle(
-                color: enabled ? (selected ? Colors.white : Colors.black87) : Colors.grey.shade600,
+                color:
+                enabled ? (selected ? Colors.white : Colors.black87) : Colors.grey.shade600,
                 fontWeight: FontWeight.w600,
                 fontSize: 18,
               ),
@@ -342,7 +344,9 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildAlternativeTabsToggle() {
-    if (searchMode != SearchMode.standard || standardChord == null) return const SizedBox.shrink();
+    if (searchMode != SearchMode.standard || standardChord == null) {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       children: [
@@ -356,7 +360,8 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Text(
                 'Standard',
                 style: TextStyle(
-                  fontWeight: selectedAlternativeIdx == 0 ? FontWeight.bold : FontWeight.normal,
+                  fontWeight:
+                  selectedAlternativeIdx == 0 ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             ),
@@ -367,7 +372,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: Text(
                   'Alt $idx',
                   style: TextStyle(
-                    fontWeight: selectedAlternativeIdx == idx ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                    selectedAlternativeIdx == idx ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
               );
@@ -381,17 +387,26 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildCustomList() {
     if (searchMode != SearchMode.custom) return const SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(height: 18),
-        const Text('Custom Chords', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-        const SizedBox(height: 8),
-        if (customChords.isEmpty)
-          const Text('No custom chords yet.')
-        else
+    if (customChords.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 18),
+        child: Center(
+            child: Text('No custom chords yet.',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20))),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Text('Custom Chords',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+          const SizedBox(height: 8),
           ...customChords.map((row) {
-            final selected = selectedCustomChord != null && selectedCustomChord!['id'] == row['id'];
+            final selected =
+                selectedCustomChord != null && selectedCustomChord!['id'] == row['id'];
             return ListTile(
               title: Text(row['name'] as String),
               selected: selected,
@@ -404,121 +419,34 @@ class _SearchScreenState extends State<SearchScreen> {
               },
             );
           }),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildGuitarNeck() {
-    if (displayTabs == null) return const SizedBox.shrink();
+  List<List<int>> _parseTabsToNeckMarks(String tabs) {
+    const int noMark = -1;
+    const int openMark = 0;
+    const int muteMark = -2;
 
-    final parts = displayTabs!.split(' '); // lowE..highE
-    if (parts.length != 6) return const SizedBox.shrink();
+    List<String> parts = tabs.split(' ');
+    if (parts.length != 6) return List.generate(6, (_) => List.filled(fretCount, noMark));
 
-    final byStringTopToBottom = List.generate(6, (i) => parts[5 - i]);
-    final circleColor = Colors.blue.shade700;
-    final textStyle = const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14);
-    final stringNames = ['E', 'A', 'D', 'G', 'B', 'E'];
-    const double firstColWidth = 25;
-    const double otherColWidth = 50;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Center(
-        child: AspectRatio(
-          aspectRatio: 7 / (6 * 0.35),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade700, width: 2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: List.generate(6, (row) {
-                    return Container(
-                      height: 28,
-                      alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Text(stringNames[row], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                    );
-                  }),
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(6, (row) {
-                      final fretVal = byStringTopToBottom[row];
-                      return SizedBox(
-                        height: 28,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(fretCount, (col) {
-                            bool isCircle = false;
-                            String? circleText;
-                            bool isMuted = false;
-                            if (col == 0) {
-                              if (fretVal == 'X') {
-                                isCircle = true;
-                                circleText = 'X';
-                                isMuted = true;
-                              } else if (fretVal == '0') {
-                                isCircle = true;
-                                circleText = '0';
-                              }
-                            } else {
-                              final n = int.tryParse(fretVal);
-                              if (n != null && n == col) {
-                                isCircle = true;
-                                circleText = '$col';
-                              }
-                            }
-                            return Container(
-                              width: col == 0 ? firstColWidth : otherColWidth,
-                              height: double.infinity,
-                              margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade600),
-                                borderRadius: BorderRadius.circular(6),
-                                color: Colors.white,
-                              ),
-                              alignment: Alignment.center,
-                              child: isCircle
-                                  ? Container(
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  color: isMuted ? Colors.red.shade700 : circleColor,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: (isMuted ? Colors.red : circleColor).withOpacity(0.5),
-                                      blurRadius: 4,
-                                      offset: const Offset(1, 1),
-                                    ),
-                                  ],
-                                ),
-                                child: Center(child: Text(circleText!, style: textStyle)),
-                              )
-                                  : Text(
-                                col == 0 ? '' : '$col',
-                                style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
-                              ),
-                            );
-                          }),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    List<List<int>> neckMarks = List.generate(6, (_) => List.filled(fretCount, noMark));
+    for (int stringIdx = 0; stringIdx < 6; stringIdx++) {
+      final tabVal = parts[5 - stringIdx]; // reverse order for display
+      if (tabVal == 'X')
+        neckMarks[stringIdx][0] = muteMark;
+      else if (tabVal == '0')
+        neckMarks[stringIdx][0] = openMark;
+      else {
+        final fretNum = int.tryParse(tabVal);
+        if (fretNum != null && fretNum < fretCount) {
+          neckMarks[stringIdx][fretNum] = fretNum; // mark fret pressed
+        }
+      }
+    }
+    return neckMarks;
   }
 
   @override
@@ -528,28 +456,36 @@ class _SearchScreenState extends State<SearchScreen> {
     }
     return Scaffold(
       appBar: AppBar(title: const Text('Chordsmith Search'), centerTitle: true),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildSearchModeToggle(),
-              const SizedBox(height: 16),
-              if (searchMode == SearchMode.standard) _buildStandardSelectors(),
-              if (searchMode == SearchMode.custom) _buildCustomList(),
-              if (feedbackMessage.isNotEmpty) ...[
-                const SizedBox(height: 18),
-                Text(feedbackMessage, style: const TextStyle(color: Colors.red, fontSize: 16)),
-              ],
-              if (displayTabs != null) ...[
-                const SizedBox(height: 18),
-                SizedBox(width: MediaQuery.of(context).size.width * 0.9, child: _buildGuitarNeck()),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildSearchModeToggle(),
+            const SizedBox(height: 16),
+            if (searchMode == SearchMode.standard) _buildStandardSelectors(),
+            if (searchMode == SearchMode.custom) _buildCustomList(),
+            if (feedbackMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 18),
+                child: Text(feedbackMessage,
+                    style: const TextStyle(color: Colors.red, fontSize: 16)),
+              ),
+            if (displayTabs != null) ...[
+              const SizedBox(height: 18),
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: GuitarFretboard(
+                  neckMarks: _parseTabsToNeckMarks(displayTabs!),
+                  fretCount: fretCount,
+                  fretboardOffset: 0,
+                ),
+              ),
+              if (searchMode == SearchMode.standard && alternatives.isNotEmpty)
                 _buildAlternativeTabsToggle(),
-              ],
             ],
-          ),
+          ],
         ),
       ),
     );
