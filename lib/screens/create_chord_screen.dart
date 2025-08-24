@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-
 import '../database/chord_database.dart';
 import '../models/chord_models.dart';
 import '../widgets/guitar_fretboard_editor.dart';
+import '../generated/l10n.dart';
 
 enum ChordCreateType { custom, alternative }
 
@@ -15,6 +15,7 @@ class CreateChordScreen extends StatefulWidget {
 
 class _CreateChordScreenState extends State<CreateChordScreen> {
   ChordCreateType? createType;
+
   final TextEditingController _nameController = TextEditingController();
 
   List<Tonality> tonalities = [];
@@ -33,7 +34,7 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
     _loadMeta();
   }
 
-  Future<void> _loadMeta() async {
+  Future _loadMeta() async {
     final db = await ChordDatabase.instance.database;
     final tonalRes = await db.query('Tonality');
     final modeRes = await db.query('Mode');
@@ -42,15 +43,9 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
     if (!mounted) return;
 
     setState(() {
-      tonalities = tonalRes
-          .map((e) => Tonality(id: e['id'] as int, name: e['name'] as String))
-          .toList();
-      modes = modeRes
-          .map((e) => Mode(id: e['id'] as int, name: e['name'] as String))
-          .toList();
-      chordTypes = chordTypeRes
-          .map((e) => ChordType(id: e['id'] as int, name: e['name'] as String))
-          .toList();
+      tonalities = tonalRes.map((e) => Tonality(id: e['id'] as int, name: e['name'] as String)).toList();
+      modes = modeRes.map((e) => Mode(id: e['id'] as int, name: e['name'] as String)).toList();
+      chordTypes = chordTypeRes.map((e) => ChordType(id: e['id'] as int, name: e['name'] as String)).toList();
     });
   }
 
@@ -65,48 +60,66 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
     });
   }
 
-  Future<void> _saveChord() async {
+  Future _saveChord() async {
     final tabs = fretboardTabs;
+    final strings = S.of(context);
+
     if (tabs == null || tabs.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please set chord fingers on fretboard")));
+        SnackBar(content: Text(strings.pleaseSetChordFingers)),
+      );
       return;
     }
 
     if (createType == ChordCreateType.custom) {
       final name = _nameController.text.trim();
+
       if (name.isEmpty) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Enter custom chord name")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.enterCustomChordName)),
+        );
         return;
       }
+
       await ChordDatabase.instance.insertCustomChord(name, tabs.join(' '));
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Custom chord saved.")));
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(strings.customChordSaved)),
+      );
+
       setState(() {
         _nameController.clear();
         fretboardTabs = null;
       });
     } else if (createType == ChordCreateType.alternative) {
       if (toneId == null || modeId == null || typeId == null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Select tone, mode, and type.")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.selectToneModeType)),
+        );
         return;
       }
-      final baseChord =
-      await ChordDatabase.instance.getStandardChord(toneId!, modeId!, typeId!);
+
+      final baseChord = await ChordDatabase.instance.getStandardChord(toneId!, modeId!, typeId!);
+
       if (!mounted) return;
+
       if (baseChord == null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Standard chord not found.")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(strings.standardChordNotFound)),
+        );
         return;
       }
-      await ChordDatabase.instance
-          .insertAlternativeChord(baseChord['id'] as int, tabs.join(' '));
+
+      await ChordDatabase.instance.insertAlternativeChord(baseChord['id'] as int, tabs.join(' '));
+
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Alternative chord saved.")));
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(strings.alternativeChordSaved)),
+      );
+
       setState(() {
         fretboardTabs = null;
       });
@@ -114,6 +127,8 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
   }
 
   Widget _buildAltSpecifier() {
+    final strings = S.of(context);
+
     return Column(
       children: [
         Wrap(
@@ -154,8 +169,10 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = S.of(context);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Create Chord")),
+      appBar: AppBar(title: Text(strings.createChord)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 0),
         child: Column(
@@ -167,20 +184,18 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
               children: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                    createType == ChordCreateType.custom ? Colors.blue : Colors.grey,
+                    backgroundColor: createType == ChordCreateType.custom ? Colors.blue : Colors.grey,
                   ),
                   onPressed: () => _setCreateType(ChordCreateType.custom),
-                  child: const Text('New Chord'),
+                  child: Text(strings.newChord),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                    createType == ChordCreateType.alternative ? Colors.blue : Colors.grey,
+                    backgroundColor: createType == ChordCreateType.alternative ? Colors.blue : Colors.grey,
                   ),
                   onPressed: () => _setCreateType(ChordCreateType.alternative),
-                  child: const Text('Alternative'),
+                  child: Text(strings.alternative),
                 ),
               ],
             ),
@@ -190,11 +205,11 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-                    const Text("Enter name for new chord:"),
+                    Text(strings.enterNameForNewChord),
                     const SizedBox(height: 10),
                     TextField(
                       controller: _nameController,
-                      decoration: const InputDecoration(border: OutlineInputBorder()),
+                      decoration: InputDecoration(border: OutlineInputBorder(), hintText: strings.enterChordNameHint),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -205,7 +220,7 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-                    const Text("Select chord to create alternative for:"),
+                    Text(strings.selectChordToCreateAlternative),
                     const SizedBox(height: 10),
                     _buildAltSpecifier(),
                   ],
@@ -225,9 +240,9 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: ElevatedButton(
                 onPressed: _saveChord,
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 36, vertical: 12),
-                  child: Text("Save Chord", style: TextStyle(fontSize: 18)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 12),
+                  child: Text(strings.saveChord, style: const TextStyle(fontSize: 18)),
                 ),
               ),
             ),

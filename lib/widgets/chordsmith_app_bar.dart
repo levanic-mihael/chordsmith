@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 class ChordsmithAppBar extends StatelessWidget {
-  const ChordsmithAppBar({super.key});
+  final void Function()? onSettingsPressed;
+
+  const ChordsmithAppBar({super.key, this.onSettingsPressed});
 
   static const double buttonSize = 48.0;
+
   static const double horizontalPadding = 16.0;
 
   @override
@@ -15,7 +18,6 @@ class ChordsmithAppBar extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Left: Account/Login Button
             SizedBox(
               width: buttonSize,
               height: buttonSize,
@@ -29,7 +31,6 @@ class ChordsmithAppBar extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            // Center: App Name
             const Text(
               'Chordsmith',
               style: TextStyle(
@@ -39,15 +40,12 @@ class ChordsmithAppBar extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            // Right: Settings Button
             SizedBox(
               width: buttonSize,
               height: buttonSize,
               child: IconButton(
                 icon: const Icon(Icons.settings, size: 28),
-                onPressed: () {
-                  // TODO: Navigate to settings
-                },
+                onPressed: onSettingsPressed,
                 tooltip: 'Settings',
                 padding: EdgeInsets.zero,
               ),

@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import '../database/chord_database.dart';
 import '../widgets/guitar_fretboard.dart';
+import '../generated/l10n.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({Key? key}) : super(key: key);
 
   @override
-  State<FavoritesScreen> createState() => _FavoritesScreenState();
+  State createState() => _FavoritesScreenState();
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-  List<Map<String, dynamic>> favoriteStandardChords = [];
-  List<Map<String, dynamic>> favoriteAlternativeChords = [];
-  List<Map<String, dynamic>> favoriteCustomChords = [];
-
-  Map<String, dynamic>? selectedChord;
+  List<Map> favoriteStandardChords = [];
+  List<Map> favoriteAlternativeChords = [];
+  List<Map> favoriteCustomChords = [];
+  Map? selectedChord;
   String? displayTabs;
   String selectedCategory = '';
-
   bool loading = true;
 
   @override
@@ -26,8 +25,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     _loadFavoriteChords();
   }
 
-  Future<void> _loadFavoriteChords() async {
+  Future _loadFavoriteChords() async {
     setState(() => loading = true);
+
     final db = await ChordDatabase.instance.database;
 
     final stdChords = await db.query(
@@ -61,22 +61,22 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     });
   }
 
-  Future<void> _toggleFavoriteStandard(int chordId, bool current) async {
+  Future _toggleFavoriteStandard(int chordId, bool current) async {
     await ChordDatabase.instance.updateStandardChordFavorite(chordId, current ? 0 : 1);
     await _loadFavoriteChords();
   }
 
-  Future<void> _toggleFavoriteAlternative(int chordId, bool current) async {
+  Future _toggleFavoriteAlternative(int chordId, bool current) async {
     await ChordDatabase.instance.updateAlternativeChordFavorite(chordId, current ? 0 : 1);
     await _loadFavoriteChords();
   }
 
-  Future<void> _toggleFavoriteCustom(int chordId, bool current) async {
+  Future _toggleFavoriteCustom(int chordId, bool current) async {
     await ChordDatabase.instance.updateCustomChordFavorite(chordId, current ? 0 : 1);
     await _loadFavoriteChords();
   }
 
-  void _selectChord(String category, Map<String, dynamic> chord) {
+  void _selectChord(String category, Map chord) {
     setState(() {
       selectedCategory = category;
       selectedChord = chord;
@@ -96,18 +96,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     const int noMark = -1;
     const int openMark = 0;
     const int muteMark = -2;
-
     List<String> parts = tabs.split(' ');
     if (parts.length != 6) return List.generate(6, (_) => List.filled(7, noMark));
-
     List<List<int>> neckMarks = List.generate(6, (_) => List.filled(7, noMark));
     for (int stringIdx = 0; stringIdx < 6; stringIdx++) {
       final tabVal = parts[5 - stringIdx];
-      if (tabVal == 'X')
+      if (tabVal == 'X') {
         neckMarks[stringIdx][0] = muteMark;
-      else if (tabVal == '0')
+      } else if (tabVal == '0') {
         neckMarks[stringIdx][0] = openMark;
-      else {
+      } else {
         final fretNum = int.tryParse(tabVal);
         if (fretNum != null && fretNum < 7) {
           neckMarks[stringIdx][fretNum] = fretNum;
@@ -123,12 +121,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     required VoidCallback onToggleFavorite,
     required VoidCallback onTap,
   }) {
+    final strings = S.of(context);
+
     return ListTile(
       title: Text(name),
       trailing: IconButton(
         icon: Icon(favorite ? Icons.star : Icons.star_border, color: favorite ? Colors.amber : null),
         onPressed: onToggleFavorite,
-        tooltip: favorite ? 'Unmark Favorite' : 'Mark as Favorite',
+        tooltip: favorite ? strings.unmarkFavorite : strings.markFavorite,
       ),
       onTap: onTap,
     );
@@ -136,6 +136,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = S.of(context);
+
     if (loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -144,9 +146,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       // Display only fretboard and back button
       return Scaffold(
         appBar: AppBar(
-          title: Text(selectedCategory == 'custom'
-              ? selectedChord!['name'] ?? 'Custom Chord'
-              : selectedChord!['display_name'] ?? 'Chord'),
+          title: Text(
+            selectedCategory == 'custom'
+                ? selectedChord!['name'] ?? strings.customChord
+                : selectedChord!['display_name'] ?? strings.chord,
+          ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: _goBackToList,
@@ -165,20 +169,19 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       );
     }
 
-    // Otherwise show the list
     return Scaffold(
-      appBar: AppBar(title: const Text('Favorites'), centerTitle: true),
+      appBar: AppBar(title: Text(strings.favorites), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (favoriteStandardChords.isNotEmpty) ...[
-              const Text('Standard Chords', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+              Text(strings.standardChords, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
               ...favoriteStandardChords.map((chord) {
                 final favorite = (chord['favorite'] ?? 0) == 1;
                 return _buildChordTile(
-                  name: chord['display_name'] ?? 'Unknown',
+                  name: chord['display_name'] ?? strings.unknown,
                   favorite: favorite,
                   onToggleFavorite: () => _toggleFavoriteStandard(chord['id'], favorite),
                   onTap: () => _selectChord('standard', chord),
@@ -187,11 +190,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               const SizedBox(height: 24),
             ],
             if (favoriteAlternativeChords.isNotEmpty) ...[
-              const Text('Alternative Chords', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+              Text(strings.alternativeChords, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
               ...favoriteAlternativeChords.map((chord) {
                 final favorite = (chord['favorite'] ?? 0) == 1;
                 return _buildChordTile(
-                  name: chord['display_name'] ?? 'Unknown',
+                  name: chord['display_name'] ?? strings.unknown,
                   favorite: favorite,
                   onToggleFavorite: () => _toggleFavoriteAlternative(chord['id'], favorite),
                   onTap: () => _selectChord('alternative', chord),
@@ -200,11 +203,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               const SizedBox(height: 24),
             ],
             if (favoriteCustomChords.isNotEmpty) ...[
-              const Text('Custom Chords', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+              Text(strings.customChords, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
               ...favoriteCustomChords.map((chord) {
                 final favorite = (chord['favorite'] ?? 0) == 1;
                 return _buildChordTile(
-                  name: chord['name'] ?? 'Unknown',
+                  name: chord['name'] ?? strings.unknown,
                   favorite: favorite,
                   onToggleFavorite: () => _toggleFavoriteCustom(chord['id'], favorite),
                   onTap: () => _selectChord('custom', chord),
@@ -212,13 +215,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               }).toList(),
               const SizedBox(height: 24),
             ],
-            if (favoriteStandardChords.isEmpty &&
-                favoriteAlternativeChords.isEmpty &&
-                favoriteCustomChords.isEmpty)
-              const Center(
+            if (favoriteStandardChords.isEmpty && favoriteAlternativeChords.isEmpty && favoriteCustomChords.isEmpty)
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.all(32),
-                  child: Text('No favorites yet.', style: TextStyle(fontSize: 20)),
+                  padding: const EdgeInsets.all(32),
+                  child: Text(strings.noFavoritesYet, style: const TextStyle(fontSize: 20)),
                 ),
               ),
           ],

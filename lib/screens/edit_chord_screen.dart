@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import '../database/chord_database.dart';
 import '../widgets/guitar_fretboard_editor.dart';
+import '../generated/l10n.dart';
 
 class EditChordScreen extends StatefulWidget {
   const EditChordScreen({Key? key}) : super(key: key);
 
   @override
-  State<EditChordScreen> createState() => _EditChordScreenState();
+  State createState() => _EditChordScreenState();
 }
 
 class _EditChordScreenState extends State<EditChordScreen> {
-  List<Map<String, dynamic>> alternativeChords = [];
-  List<Map<String, dynamic>> customChords = [];
-  List<Map<String, dynamic>> standardChords = [];
-
-  Map<String, dynamic>? editingChord;
+  List<Map> alternativeChords = [];
+  List<Map> customChords = [];
+  List<Map> standardChords = [];
+  Map? editingChord;
   bool isAlternativeEditing = false;
   List<String>? fretboardTabs;
-
   bool loading = true;
 
   @override
@@ -26,10 +25,11 @@ class _EditChordScreenState extends State<EditChordScreen> {
     _loadChords();
   }
 
-  Future<void> _loadChords() async {
+  Future _loadChords() async {
     setState(() {
       loading = true;
     });
+
     final db = await ChordDatabase.instance.database;
 
     final altChords = await db.rawQuery('''
@@ -54,32 +54,32 @@ class _EditChordScreenState extends State<EditChordScreen> {
     });
   }
 
-  Future<void> _toggleFavoriteStandardChord(int chordId, bool current) async {
+  Future _toggleFavoriteStandardChord(int chordId, bool current) async {
     await ChordDatabase.instance.updateStandardChordFavorite(chordId, current ? 0 : 1);
     await _loadChords();
   }
 
-  Future<void> _toggleFavoriteAlternativeChord(int chordId, bool current) async {
+  Future _toggleFavoriteAlternativeChord(int chordId, bool current) async {
     await ChordDatabase.instance.updateAlternativeChordFavorite(chordId, current ? 0 : 1);
     await _loadChords();
   }
 
-  Future<void> _toggleFavoriteCustomChord(int chordId, bool current) async {
+  Future _toggleFavoriteCustomChord(int chordId, bool current) async {
     await ChordDatabase.instance.updateCustomChordFavorite(chordId, current ? 0 : 1);
     await _loadChords();
   }
 
-  Future<void> _deleteAlternativeChord(int chordId) async {
+  Future _deleteAlternativeChord(int chordId) async {
     await ChordDatabase.instance.deleteAlternativeChord(chordId);
     await _loadChords();
   }
 
-  Future<void> _deleteCustomChord(int chordId) async {
+  Future _deleteCustomChord(int chordId) async {
     await ChordDatabase.instance.deleteCustomChord(chordId);
     await _loadChords();
   }
 
-  Future<void> _startEditingAlternativeChord(Map<String, dynamic> chord) {
+  Future _startEditingAlternativeChord(Map chord) {
     setState(() {
       editingChord = chord;
       fretboardTabs = chord['tabs_frets'].toString().split(' ');
@@ -88,7 +88,7 @@ class _EditChordScreenState extends State<EditChordScreen> {
     return Future.value();
   }
 
-  Future<void> _startEditingCustomChord(Map<String, dynamic> chord) {
+  Future _startEditingCustomChord(Map chord) {
     setState(() {
       editingChord = chord;
       fretboardTabs = chord['tabs_frets'].toString().split(' ');
@@ -98,42 +98,46 @@ class _EditChordScreenState extends State<EditChordScreen> {
   }
 
   Future<bool?> _showConfirmDeleteDialog(BuildContext context, String chordName) {
+    final strings = S.of(context);
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Chord'),
-        content: Text('Are you sure you want to delete "$chordName"?'),
+        title: Text(strings.deleteChord),
+        content: Text(strings.confirmDeleteChord(chordName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('No'),
+            child: Text(strings.no),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Yes'),
+            child: Text(strings.yes),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _saveEditedChord() async {
+  Future _saveEditedChord() async {
+    final strings = S.of(context);
     if (editingChord == null) return;
     if (fretboardTabs == null || fretboardTabs!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please set chord fingers on fretboard')),
+        SnackBar(content: Text(strings.pleaseSetChordFingers)),
       );
       return;
     }
 
     final tabsString = fretboardTabs!.join(' ');
+
     if (isAlternativeEditing) {
       await ChordDatabase.instance.updateAlternativeChordTabs(editingChord!['id'], tabsString);
     } else {
       await ChordDatabase.instance.updateCustomChordTabs(editingChord!['id'], tabsString);
     }
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Chord saved.')),
+      SnackBar(content: Text(strings.chordSaved)),
     );
     await _loadChords();
   }
@@ -142,7 +146,6 @@ class _EditChordScreenState extends State<EditChordScreen> {
     const int noMark = -1;
     const int openMark = 0;
     const int muteMark = -2;
-
     List<String> tabs = tabsString.split(' ');
     List<List<int>> neckMarks = List.generate(6, (_) => List.filled(fretCount, noMark));
     for (int stringIdx = 0; stringIdx < 6; stringIdx++) {
@@ -164,6 +167,8 @@ class _EditChordScreenState extends State<EditChordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strings = S.of(context);
+
     if (loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -176,8 +181,8 @@ class _EditChordScreenState extends State<EditChordScreen> {
         appBar: AppBar(
           title: Text(
             isAlternativeEditing
-                ? (editingChord!['display_name'] ?? 'Edit Alternative Chord')
-                : (editingChord!['name'] ?? 'Edit Custom Chord'),
+                ? (editingChord!['display_name'] ?? strings.editAlternativeChord)
+                : (editingChord!['name'] ?? strings.editCustomChord),
           ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
@@ -217,9 +222,9 @@ class _EditChordScreenState extends State<EditChordScreen> {
                     children: [
                       ElevatedButton(
                         onPressed: _saveEditedChord,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          child: Text('Save Chord', style: TextStyle(fontSize: 18)),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text(strings.saveChord, style: const TextStyle(fontSize: 18)),
                         ),
                       ),
                       TextButton(
@@ -229,7 +234,7 @@ class _EditChordScreenState extends State<EditChordScreen> {
                             fretboardTabs = null;
                           });
                         },
-                        child: const Text('Cancel'),
+                        child: Text(strings.cancel),
                       ),
                     ],
                   ),
@@ -242,23 +247,23 @@ class _EditChordScreenState extends State<EditChordScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Chords'), centerTitle: true),
+      appBar: AppBar(title: Text(strings.editChords), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Standard Chords', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+            Text(strings.standardChords, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
             ...standardChords.map((chord) {
               final favorite = (chord['favorite'] ?? 0) == 1;
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Text(chord['display_name'] ?? 'Unknown', style: const TextStyle(fontSize: 18))),
+                  Expanded(child: Text(chord['display_name'] ?? strings.unknown, style: const TextStyle(fontSize: 18))),
                   IconButton(
                     icon: Icon(favorite ? Icons.star : Icons.star_border, color: favorite ? Colors.amber : null),
                     onPressed: () => _toggleFavoriteStandardChord(chord['id'], favorite),
-                    tooltip: favorite ? 'Unmark Favorite' : 'Mark as Favorite',
+                    tooltip: favorite ? strings.unmarkFavorite : strings.markFavorite,
                   ),
                   const SizedBox(width: 48),
                   const SizedBox(width: 48),
@@ -266,63 +271,63 @@ class _EditChordScreenState extends State<EditChordScreen> {
               );
             }).toList(),
             const SizedBox(height: 24),
-            const Text('Alternative Chords', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+            Text(strings.alternativeChords, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
             ...alternativeChords.map((chord) {
               final favorite = (chord['favorite'] ?? 0) == 1;
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Text(chord['display_name'] ?? 'Unknown', style: const TextStyle(fontSize: 18))),
+                  Expanded(child: Text(chord['display_name'] ?? strings.unknown, style: const TextStyle(fontSize: 18))),
                   IconButton(
                     icon: Icon(favorite ? Icons.star : Icons.star_border, color: favorite ? Colors.amber : null),
                     onPressed: () => _toggleFavoriteAlternativeChord(chord['id'], favorite),
-                    tooltip: favorite ? 'Unmark Favorite' : 'Mark as Favorite',
+                    tooltip: favorite ? strings.unmarkFavorite : strings.markFavorite,
                   ),
                   IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () => _startEditingAlternativeChord(chord),
-                    tooltip: 'Edit Chord',
+                    tooltip: strings.editChord,
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () async {
-                      final confirm = await _showConfirmDeleteDialog(context, chord['display_name'] ?? 'this chord');
+                      final confirm = await _showConfirmDeleteDialog(context, chord['display_name'] ?? strings.thisChord);
                       if (confirm == true) {
                         await _deleteAlternativeChord(chord['id']);
                       }
                     },
-                    tooltip: 'Delete Chord',
+                    tooltip: strings.deleteChord,
                   ),
                 ],
               );
             }).toList(),
             const SizedBox(height: 24),
-            const Text('Custom Chords', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+            Text(strings.customChords, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
             ...customChords.map((chord) {
               final favorite = (chord['favorite'] ?? 0) == 1;
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Text(chord['name'] ?? 'Unknown', style: const TextStyle(fontSize: 18))),
+                  Expanded(child: Text(chord['name'] ?? strings.unknown, style: const TextStyle(fontSize: 18))),
                   IconButton(
                     icon: Icon(favorite ? Icons.star : Icons.star_border, color: favorite ? Colors.amber : null),
                     onPressed: () => _toggleFavoriteCustomChord(chord['id'], favorite),
-                    tooltip: favorite ? 'Unmark Favorite' : 'Mark as Favorite',
+                    tooltip: favorite ? strings.unmarkFavorite : strings.markFavorite,
                   ),
                   IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () => _startEditingCustomChord(chord),
-                    tooltip: 'Edit Chord',
+                    tooltip: strings.editChord,
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () async {
-                      final confirm = await _showConfirmDeleteDialog(context, chord['name'] ?? 'this chord');
+                      final confirm = await _showConfirmDeleteDialog(context, chord['name'] ?? strings.thisChord);
                       if (confirm == true) {
                         await _deleteCustomChord(chord['id']);
                       }
                     },
-                    tooltip: 'Delete Chord',
+                    tooltip: strings.deleteChord,
                   ),
                 ],
               );
