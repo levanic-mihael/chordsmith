@@ -3,6 +3,8 @@ import '../widgets/chordsmith_app_bar.dart';
 import '../widgets/chordsmith_main_button.dart';
 import 'search_screen.dart';
 import 'create_chord_screen.dart';
+import 'edit_chord_screen.dart';
+import 'favorites_screen.dart';
 
 class ChordsmithHome extends StatelessWidget {
   const ChordsmithHome({super.key});
@@ -15,9 +17,9 @@ class ChordsmithHome extends StatelessWidget {
     final List<_MainAction> actions = [
       _MainAction(label: 'Search', icon: Icons.search, onTap: () {Navigator.of(context).push(MaterialPageRoute(builder: (context) => const SearchScreen()));}),
       _MainAction(label: 'Create', icon: Icons.add, onTap: () {Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateChordScreen()));}),
-      _MainAction(label: 'Update', icon: Icons.edit, onTap: () {/* TODO */}),
+      _MainAction(label: 'Edit', icon: Icons.edit, onTap: () {Navigator.push(context, MaterialPageRoute(builder: (_) => const EditChordScreen()));}),
       _MainAction(label: 'Share', icon: Icons.share, onTap: () {/* TODO */}),
-      _MainAction(label: 'Favorites', icon: Icons.star, onTap: () {/* TODO */}),
+      _MainAction(label: 'Favorites', icon: Icons.star, onTap: () {Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoritesScreen()));}),
       _MainAction(label: 'Reports', icon: Icons.picture_as_pdf, onTap: () {/* TODO */}),
     ];
 

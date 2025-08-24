@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-
 import 'guitar_fretboard.dart';
 
 class GuitarFretboardEditor extends StatefulWidget {
+  final List<List<int>>? initialNeckMarks;  // Added to accept initial fret marks
   final int fretCount;
   final int initialOffset;
-  final void Function(List<String> tabsFrets)? onChanged;
+  final void Function(List<String> tabs)? onChanged;
 
   const GuitarFretboardEditor({
     Key? key,
     this.fretCount = 7,
     this.initialOffset = 0,
+    this.initialNeckMarks,  // new parameter
     this.onChanged,
   }) : super(key: key);
 
@@ -30,7 +31,16 @@ class _GuitarFretboardEditorState extends State<GuitarFretboardEditor> {
   void initState() {
     super.initState();
     fretboardOffset = widget.initialOffset;
-    neckMarks = List.generate(6, (_) => List.filled(widget.fretCount, noMark));
+
+    neckMarks = widget.initialNeckMarks != null
+        ? List<List<int>>.generate(
+      6,
+          (i) => List<int>.from(widget.initialNeckMarks![i]),
+    )
+        : List<List<int>>.generate(
+      6,
+          (_) => List<int>.filled(widget.fretCount, noMark),
+    );
   }
 
   void _onFretTap(int stringIdx, int fretIdx) {
@@ -40,27 +50,53 @@ class _GuitarFretboardEditorState extends State<GuitarFretboardEditor> {
         if (val == noMark) {
           neckMarks[stringIdx][0] = openMark;
         } else if (val == openMark) {
-          neckMarks[stringIdx][fretIdx] = muteMark;
+          neckMarks[stringIdx][0] = muteMark;
         } else {
-          neckMarks[stringIdx][fretIdx] = noMark;
-        }
-        for (int f = 1; f < widget.fretCount; f++) {
-          neckMarks[stringIdx][f] = noMark;
+          neckMarks[stringIdx][0] = noMark;
+          for (int f = 1; f < widget.fretCount; f++) {
+            neckMarks[stringIdx][f] = noMark;
+          }
         }
       } else {
         if (val == noMark) {
           for (int f = 0; f < widget.fretCount; f++) {
             neckMarks[stringIdx][f] = noMark;
           }
-          neckMarks[stringIdx][fretIdx] = fretIdx + fretboardOffset;
+          neckMarks[stringIdx][fretIdx] = fretIdx;
         } else {
           neckMarks[stringIdx][fretIdx] = noMark;
         }
       }
+
       if (widget.onChanged != null) {
-        widget.onChanged!(_generateTabsFrets());
+        widget.onChanged!(_generateTabs());
       }
     });
+  }
+
+  List<String> _generateTabs() {
+    List<String> tabs = [];
+    for (int i = 0; i < 6; i++) {
+      if (neckMarks[i][0] == muteMark) {
+        tabs.add('X');
+      } else if (neckMarks[i][0] == openMark) {
+        tabs.add('0');
+      } else {
+        int val = noMark;
+        for (int f = 1; f < widget.fretCount; f++) {
+          if (neckMarks[i][f] != noMark) {
+            val = neckMarks[i][f];
+            break;
+          }
+        }
+        if (val == noMark) {
+          tabs.add('X');
+        } else {
+          tabs.add(val.toString());
+        }
+      }
+    }
+    return tabs;
   }
 
   void _scrollLeft() {
@@ -75,38 +111,10 @@ class _GuitarFretboardEditorState extends State<GuitarFretboardEditor> {
     });
   }
 
-  List<String> _generateTabsFrets() {
-    List<String> result = [];
-    for (int stringIdx = 5; stringIdx >= 0; stringIdx--) {
-      int val = neckMarks[stringIdx][0];
-      if (val == muteMark) {
-        result.add("X");
-      } else if (val == openMark) {
-        result.add("0");
-      } else {
-        int fretMark = noMark;
-        for (int f = 1; f < widget.fretCount; f++) {
-          int mark = neckMarks[stringIdx][f];
-          if (mark != noMark) {
-            fretMark = mark;
-            break;
-          }
-        }
-        if (fretMark == noMark) {
-          result.add("X");
-        } else {
-          result.add("$fretMark");
-        }
-      }
-    }
-    return result;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Scroll controls
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -115,7 +123,7 @@ class _GuitarFretboardEditorState extends State<GuitarFretboardEditor> {
               icon: const Icon(Icons.arrow_left),
             ),
             Text(
-              "Frets: 0, ${1 + fretboardOffset} ... ${widget.fretCount - 1 + fretboardOffset}",
+              "Frets: ${fretboardOffset} - ${widget.fretCount - 1 + fretboardOffset}",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             IconButton(
@@ -124,7 +132,6 @@ class _GuitarFretboardEditorState extends State<GuitarFretboardEditor> {
             ),
           ],
         ),
-        // Fretboard editor display
         GuitarFretboard(
           neckMarks: neckMarks,
           fretCount: widget.fretCount,

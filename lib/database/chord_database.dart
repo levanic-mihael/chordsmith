@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -19,9 +18,10 @@ class ChordDatabase {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
+
     return await openDatabase(
       path,
-      version: 3,
+      version: 4, // incremented version for migration
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -29,51 +29,59 @@ class ChordDatabase {
 
   Future _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE Tonality (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL
-      );
+    CREATE TABLE Tonality (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL
+    );
     ''');
+
     await db.execute('''
-      CREATE TABLE Mode (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL
-      );
+    CREATE TABLE Mode (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL
+    );
     ''');
+
     await db.execute('''
-      CREATE TABLE ChordType (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL
-      );
+    CREATE TABLE ChordType (
+      id INTEGER PRIMARY KEY,
+      name TEXT NOT NULL
+    );
     ''');
+
     await db.execute('''
-      CREATE TABLE Chord (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        tonality_id INTEGER NOT NULL,
-        mode_id INTEGER NOT NULL,
-        type_id INTEGER NOT NULL,
-        tabs_frets TEXT NOT NULL,
-        custom INTEGER DEFAULT 0,
-        display_name TEXT,
-        FOREIGN KEY (tonality_id) REFERENCES Tonality(id),
-        FOREIGN KEY (mode_id) REFERENCES Mode(id),
-        FOREIGN KEY (type_id) REFERENCES ChordType(id)
-      );
+    CREATE TABLE Chord (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      tonality_id INTEGER NOT NULL,
+      mode_id INTEGER NOT NULL,
+      type_id INTEGER NOT NULL,
+      tabs_frets TEXT NOT NULL,
+      custom INTEGER DEFAULT 0,
+      display_name TEXT,
+      favorite INTEGER DEFAULT 0,
+      FOREIGN KEY (tonality_id) REFERENCES Tonality(id),
+      FOREIGN KEY (mode_id) REFERENCES Mode(id),
+      FOREIGN KEY (type_id) REFERENCES ChordType(id)
+    );
     ''');
+
     await db.execute('''
-      CREATE TABLE AlternativeChord (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        base_chord_id INTEGER NOT NULL,
-        tabs_frets TEXT NOT NULL,
-        FOREIGN KEY (base_chord_id) REFERENCES Chord(id)
-      );
+    CREATE TABLE AlternativeChord (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      base_chord_id INTEGER NOT NULL,
+      tabs_frets TEXT NOT NULL,
+      favorite INTEGER DEFAULT 0,
+      FOREIGN KEY (base_chord_id) REFERENCES Chord(id)
+    );
     ''');
+
     await db.execute('''
-      CREATE TABLE CustomChord (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        tabs_frets TEXT NOT NULL
-      );
+    CREATE TABLE CustomChord (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      tabs_frets TEXT NOT NULL,
+      favorite INTEGER DEFAULT 0
+    );
     ''');
 
     await _insertInitialData(db);
@@ -82,20 +90,30 @@ class ChordDatabase {
   Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('''
-        CREATE TABLE AlternativeChord (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          base_chord_id INTEGER NOT NULL,
-          tabs_frets TEXT NOT NULL,
-          FOREIGN KEY (base_chord_id) REFERENCES Chord(id)
-        );
+      CREATE TABLE AlternativeChord (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        base_chord_id INTEGER NOT NULL,
+        tabs_frets TEXT NOT NULL,
+        favorite INTEGER DEFAULT 0,
+        FOREIGN KEY (base_chord_id) REFERENCES Chord(id)
+      );
       ''');
+
       await db.execute('''
-        CREATE TABLE CustomChord (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          tabs_frets TEXT NOT NULL
-        );
+      CREATE TABLE CustomChord (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        tabs_frets TEXT NOT NULL,
+        favorite INTEGER DEFAULT 0
+      );
       ''');
+    }
+
+    if (oldVersion < 4) {
+      // Add favorite columns if they don't exist
+      await db.execute('ALTER TABLE Chord ADD COLUMN favorite INTEGER DEFAULT 0;');
+      await db.execute('ALTER TABLE AlternativeChord ADD COLUMN favorite INTEGER DEFAULT 0;');
+      await db.execute('ALTER TABLE CustomChord ADD COLUMN favorite INTEGER DEFAULT 0;');
     }
   }
 
@@ -207,43 +225,83 @@ class ChordDatabase {
     }
   }
 
-  Future<Map<String, Object?>?> getStandardChord(int tonalityId, int modeId, int typeId) async {
+  Future<Map<String, dynamic>?> getStandardChord(int tonalityId, int modeId, int typeId) async {
     final db = await database;
-    final List<Map<String, Object?>> result = await db.query('Chord',
-        where: 'tonality_id = ? AND mode_id = ? AND type_id = ?',
-        whereArgs: [tonalityId, modeId, typeId],
-        limit: 1);
+    final List<Map<String, dynamic>> result = await db.query(
+      'Chord',
+      where: 'tonality_id = ? AND mode_id = ? AND type_id = ?',
+      whereArgs: [tonalityId, modeId, typeId],
+      limit: 1,
+    );
     if (result.isNotEmpty) return result.first;
     return null;
   }
 
-  Future<List<Map<String, Object?>>> getAlternativeChords(int baseChordId) async {
+  Future<List<Map<String, dynamic>>> getAlternativeChords(int baseChordId) async {
     final db = await database;
-    return await db.query('AlternativeChord',
-        where: 'base_chord_id = ?', whereArgs: [baseChordId]);
+    return await db.query('AlternativeChord', where: 'base_chord_id = ?', whereArgs: [baseChordId]);
   }
 
-  Future<List<Map<String, Object?>>> getAllCustomChords() async {
+  Future<List<Map<String, dynamic>>> getAllCustomChords() async {
     final db = await database;
     return await db.query('CustomChord', orderBy: 'name COLLATE NOCASE ASC');
   }
 
-  Future<Map<String, Object?>?> getCustomChordById(int id) async {
+  Future<Map<String, dynamic>?> getCustomChordById(int id) async {
     final db = await database;
-    final List<Map<String, Object?>> result =
-    await db.query('CustomChord', where: 'id = ?', whereArgs: [id], limit: 1);
+    final List<Map<String, dynamic>> result = await db.query('CustomChord', where: 'id = ?', whereArgs: [id], limit: 1);
     if (result.isNotEmpty) return result.first;
     return null;
   }
 
   Future<int> insertAlternativeChord(int baseChordId, String tabs) async {
     final db = await database;
-    return await db.insert('AlternativeChord',
-        {'base_chord_id': baseChordId, 'tabs_frets': tabs});
+    return await db.insert('AlternativeChord', {'base_chord_id': baseChordId, 'tabs_frets': tabs});
   }
 
   Future<int> insertCustomChord(String name, String tabs) async {
     final db = await database;
     return await db.insert('CustomChord', {'name': name, 'tabs_frets': tabs});
+  }
+
+  // New methods for favorites update
+
+  Future<int> updateStandardChordFavorite(int chordId, int favorite) async {
+    final db = await database;
+    return await db.update('Chord', {'favorite': favorite}, where: 'id = ?', whereArgs: [chordId]);
+  }
+
+  Future<int> updateAlternativeChordFavorite(int chordId, int favorite) async {
+    final db = await database;
+    return await db.update('AlternativeChord', {'favorite': favorite}, where: 'id = ?', whereArgs: [chordId]);
+  }
+
+  Future<int> updateCustomChordFavorite(int chordId, int favorite) async {
+    final db = await database;
+    return await db.update('CustomChord', {'favorite': favorite}, where: 'id = ?', whereArgs: [chordId]);
+  }
+
+  // New methods for deleting chords
+
+  Future<int> deleteAlternativeChord(int id) async {
+    final db = await database;
+    return await db.delete('AlternativeChord', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> deleteCustomChord(int id) async {
+    final db = await database;
+    return await db.delete('CustomChord', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // Also add update methods to update tabs_frets on alternative and custom chords for editing
+
+  Future<int> updateAlternativeChordTabs(int id, String tabs) async {
+    final db = await database;
+    return await db.update('AlternativeChord', {'tabs_frets': tabs}, where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> updateCustomChordTabs(int id, String tabs) async {
+    final db = await database;
+    return await db.update('CustomChord', {'tabs_frets': tabs}, where: 'id = ?', whereArgs: [id]);
   }
 }
