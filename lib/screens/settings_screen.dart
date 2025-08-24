@@ -61,7 +61,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   value: Locale('en'),
                 ),
                 DropdownMenuItem(
-                  child: Text('Croatian'),
+                  child: Text('Hrvatski'),
                   value: Locale('hr'),
                 ),
               ],

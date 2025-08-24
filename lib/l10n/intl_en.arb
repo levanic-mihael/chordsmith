@@ -52,5 +52,6 @@
   "noSuchChordFound": "No such chord found",
   "customChords": "Custom Chords",
   "noCustomChordsYet": "No custom chords yet",
-  "alt": "Alt"
+  "alt": "Alt",
+  "account": "Account"
 }

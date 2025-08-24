@@ -269,8 +269,15 @@ class _SearchScreenState extends State<SearchScreen> {
     return neckMarks;
   }
 
-  Widget _buildButtonsToggle(List items, int? selectedId, String Function(dynamic) getLabel, void Function(int) onTap, {Set<int>? enabledIds}) {
+  Widget _buildButtonsToggle(
+      List items,
+      int? selectedId,
+      String Function(dynamic) getLabel,
+      void Function(int) onTap, {
+        Set? enabledIds,
+      }) {
     final strings = S.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Wrap(
       spacing: 8,
@@ -281,19 +288,40 @@ class _SearchScreenState extends State<SearchScreen> {
         final label = getLabel(item);
         final enabled = enabledIds == null || enabledIds.contains(id);
         final selected = selectedId == id;
+
+        Color backgroundColor;
+        Color borderColor;
+        Color textColor;
+
+        if (!enabled) {
+          backgroundColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+          borderColor = isDark ? Colors.grey.shade700 : Colors.grey.shade400;
+          textColor = isDark ? Colors.grey.shade600 : Colors.grey.shade600;
+        } else {
+          if (selected) {
+            backgroundColor = Colors.blue.shade700;
+            borderColor = Colors.blue.shade700;
+            textColor = Colors.white;
+          } else {
+            backgroundColor = isDark ? Colors.grey.shade900 : Colors.white;
+            borderColor = isDark ? Colors.grey.shade700 : Colors.grey.shade400;
+            textColor = isDark ? Colors.grey.shade300 : Colors.black87;
+          }
+        }
+
         return GestureDetector(
           onTap: enabled ? () => onTap(id) : null,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: enabled ? (selected ? Colors.blue.shade700 : Colors.white) : Colors.grey.shade300,
+              color: backgroundColor,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: enabled ? (selected ? Colors.blue.shade700 : Colors.grey.shade400) : Colors.grey.shade400),
+              border: Border.all(color: borderColor),
             ),
             child: Text(
               label,
               style: TextStyle(
-                color: enabled ? (selected ? Colors.white : Colors.black87) : Colors.grey.shade600,
+                color: textColor,
                 fontWeight: FontWeight.w600,
                 fontSize: 18,
               ),
@@ -303,6 +331,7 @@ class _SearchScreenState extends State<SearchScreen> {
       }).toList(),
     );
   }
+
 
   Widget _buildSearchModeToggle() {
     final strings = S.of(context);

@@ -52,5 +52,6 @@
   "noSuchChordFound": "Takav akord nije pronađen",
   "customChords": "Prilagođeni akordi",
   "noCustomChordsYet": "Još nema prilagođenih akorda",
-  "alt": "Alternativa"
+  "alt": "Alternativa",
+  "account": "Korisnički račun"
 }

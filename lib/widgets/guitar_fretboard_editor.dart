@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'guitar_fretboard.dart';
 
 class GuitarFretboardEditor extends StatefulWidget {
-  final List<List<int>>? initialNeckMarks;  // Added to accept initial fret marks
+  final List<List<int>>? initialNeckMarks; // Added to accept initial fret marks
   final int fretCount;
   final int initialOffset;
   final void Function(List<String> tabs)? onChanged;
@@ -11,7 +11,7 @@ class GuitarFretboardEditor extends StatefulWidget {
     Key? key,
     this.fretCount = 7,
     this.initialOffset = 0,
-    this.initialNeckMarks,  // new parameter
+    this.initialNeckMarks, // new parameter
     this.onChanged,
   }) : super(key: key);
 
@@ -31,15 +31,14 @@ class _GuitarFretboardEditorState extends State<GuitarFretboardEditor> {
   void initState() {
     super.initState();
     fretboardOffset = widget.initialOffset;
-
     neckMarks = widget.initialNeckMarks != null
         ? List<List<int>>.generate(
       6,
-          (i) => List<int>.from(widget.initialNeckMarks![i]),
+          (i) => List.from(widget.initialNeckMarks![i]),
     )
         : List<List<int>>.generate(
       6,
-          (_) => List<int>.filled(widget.fretCount, noMark),
+          (_) => List.filled(widget.fretCount, noMark),
     );
   }
 
@@ -67,7 +66,6 @@ class _GuitarFretboardEditorState extends State<GuitarFretboardEditor> {
           neckMarks[stringIdx][fretIdx] = noMark;
         }
       }
-
       if (widget.onChanged != null) {
         widget.onChanged!(_generateTabs());
       }
@@ -123,7 +121,7 @@ class _GuitarFretboardEditorState extends State<GuitarFretboardEditor> {
               icon: const Icon(Icons.arrow_left),
             ),
             Text(
-              "Frets: ${fretboardOffset} - ${widget.fretCount - 1 + fretboardOffset}",
+              "Frets: $fretboardOffset - ${widget.fretCount - 1 + fretboardOffset}",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             IconButton(

@@ -14,13 +14,14 @@ class ChordsmithMainButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double buttonHeight = 64.0;
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
     final Color buttonColor = Theme.of(context).colorScheme.primary.withAlpha(12);
-    final Color iconColor = Theme.of(context).colorScheme.primary;
+    final Color iconColor = isDark ? Colors.grey.shade300 : Theme.of(context).colorScheme.primary;
 
     return SizedBox(
       width: double.infinity,
-      height: buttonHeight,
+      height: 64.0,
       child: Material(
         color: buttonColor,
         borderRadius: BorderRadius.circular(18),

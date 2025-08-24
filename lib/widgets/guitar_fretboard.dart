@@ -25,16 +25,23 @@ class GuitarFretboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const stringNames = ['E', 'A', 'D', 'G', 'B', 'E'];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final circleColor = Colors.blue.shade700;
-    final textStyle =
-    const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14);
+    final textStyle = TextStyle(
+      color: isDark ? Colors.grey.shade300 : Colors.white,
+      fontWeight: FontWeight.bold,
+      fontSize: 14,
+    );
+
+    final fretboardBgColor = isDark ? const Color(0xFF121212) : Colors.white;
+    final borderColor = isDark ? Colors.grey.shade600 : Colors.grey.shade600;
+    final fretNumberColor = isDark ? Colors.grey.shade400 : Colors.grey.shade500;
 
     final availableWidth = MediaQuery.of(context).size.width * 0.8;
     final usableWidth = availableWidth * 0.8;
-
     final firstColWidth = usableWidth * 0.12;
     final otherColWidth = (usableWidth - firstColWidth) / (fretCount - 1);
-
     final firstColHeight = otherColWidth / 2; // Use same height as other frets for alignment
     final otherColHeight = otherColWidth / 2;
 
@@ -56,14 +63,19 @@ class GuitarFretboard extends StatelessWidget {
                     height: firstColHeight,
                     alignment: Alignment.centerLeft,
                     padding: const EdgeInsets.only(right: 8),
-                    child: Text(stringNames[i],
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    child: Text(
+                      stringNames[i],
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.grey.shade300 : Colors.black,
+                      ),
+                    ),
                   );
                 }),
               ),
             ),
           ),
-
           // Right: fretboard rows
           Expanded(
             child: Column(
@@ -95,8 +107,6 @@ class GuitarFretboard extends StatelessWidget {
                     }
 
                     final bool isZeroFret = fretIdx == 0;
-                    // 0 fret: square (width = height = otherColHeight)
-                    // others: width twice height
                     final cellHeight = otherColHeight;
                     final cellWidth = isZeroFret ? cellHeight : otherColWidth;
 
@@ -105,11 +115,11 @@ class GuitarFretboard extends StatelessWidget {
                       child: Container(
                         width: cellWidth,
                         height: cellHeight,
-                        margin: const EdgeInsets.symmetric(horizontal: 2), // only horizontal margins
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade600),
+                          border: Border.all(color: borderColor),
                           borderRadius: BorderRadius.circular(6),
-                          color: Colors.white,
+                          color: fretboardBgColor,
                         ),
                         alignment: Alignment.center,
                         child: isCircle
@@ -131,7 +141,7 @@ class GuitarFretboard extends StatelessWidget {
                         )
                             : Text(
                           fretIdx == 0 ? "" : fretDisplay(fretIdx),
-                          style: TextStyle(color: Colors.grey.shade500, fontSize: 12),
+                          style: TextStyle(color: fretNumberColor, fontSize: 12),
                         ),
                       ),
                     );

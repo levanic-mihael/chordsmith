@@ -448,6 +448,11 @@ class S {
   String get alt {
     return Intl.message('Alt', name: 'alt', desc: '', args: []);
   }
+
+  /// `Account`
+  String get account {
+    return Intl.message('Account', name: 'account', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
