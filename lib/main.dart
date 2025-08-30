@@ -1,15 +1,32 @@
 import 'package:flutter/material.dart';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:io' show Platform;
+
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/sqflite.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'screens/chordsmith_home.dart';
+
 import 'database/chord_database.dart';
+
 import 'settings/ini_settings_manager.dart';
+
 import 'generated/l10n.dart';
 
 void main() async {
-  sqfliteFfiInit();
-  databaseFactory = databaseFactoryFfi;
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  } else if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    // For mobile platforms, use default sqflite factory. No init needed.
+    // databaseFactory remains default
+  }
+
   await ChordDatabase.instance.database;
 
   final settingsManager = IniSettingsManager();
@@ -81,7 +98,6 @@ class _ChordsmithAppState extends State<ChordsmithApp> {
       onBackground: Colors.grey.shade300,
     ),
   );
-
 
   @override
   Widget build(BuildContext context) {
