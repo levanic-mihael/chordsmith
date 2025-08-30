@@ -1,12 +1,39 @@
 import 'package:flutter/material.dart';
 import '../generated/l10n.dart';
+import '../storage/admin_storage.dart';
+import '../storage/user_storage.dart';
+import '../screens/login_popup.dart';
 
 class ChordsmithAppBar extends StatelessWidget {
   final void Function()? onSettingsPressed;
+
   const ChordsmithAppBar({super.key, this.onSettingsPressed});
 
   static const double buttonSize = 48.0;
+
   static const double horizontalPadding = 16.0;
+
+  void _handleAccountPressed(BuildContext context) async {
+    final userStorage = UserStorage();
+    await userStorage.init();
+    final adminStorage = AdminStorage();
+    await adminStorage.init();
+
+    showDialog(
+      context: context,
+      builder: (_) => LoginPopup(
+        authorizeAdmin: adminStorage.authorizeAdmin,
+        onLoginSuccess: (username) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Welcome, $username')),
+          );
+        },
+        createAccount: (username, password, adminPassword) =>
+            userStorage.createAccount(username, password, adminPassword, adminStorage.authorizeAdmin),
+        loginUser: (username, password) => userStorage.login(username, password),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +53,7 @@ class ChordsmithAppBar extends StatelessWidget {
               height: buttonSize,
               child: IconButton(
                 icon: Icon(Icons.account_circle, size: 32, color: iconColor),
-                onPressed: () {
-                  // TODO: Implement login/account logic
-                },
+                onPressed: () => _handleAccountPressed(context),
                 tooltip: S.of(context).account,
                 padding: EdgeInsets.zero,
               ),

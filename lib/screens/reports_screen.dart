@@ -26,7 +26,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Future<Directory> _getReportsDirectory() async {
-    final docDir = await getApplicationDocumentsDirectory();
+    final baseDir = await getApplicationDocumentsDirectory();
+    final docDir = Directory('${baseDir.path}/Chordsmith');
     final reportsDir = Directory('${docDir.path}/reports');
     if (!await reportsDir.exists()) {
       await reportsDir.create(recursive: true);

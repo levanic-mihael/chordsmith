@@ -82,7 +82,8 @@ class _ReportViewScreenState extends State<ReportViewScreen> {
       ),
     );
 
-    final output = await getApplicationDocumentsDirectory();
+    final baseDir = await getApplicationDocumentsDirectory();
+    final output = Directory('${baseDir.path}/Chordsmith');
     final pdfFilePath = '${output.path}/report_${DateTime.now().millisecondsSinceEpoch}.pdf';
     final pdfFile = File(pdfFilePath);
     await pdfFile.writeAsBytes(await pdf.save());

@@ -57,5 +57,21 @@
   "createNewReport": "Izradi novi izvještaj",
   "noReportsYet": "Nema još izvještaja",
   "generate": "Spremi kao PDF",
-  "generatedOn": "Izvještaj izrađen:"
+  "generatedOn": "Izvještaj izrađen:",
+  "pleaseEnterAllFields": "Molimo unesite sva polja",
+  "usernameTaken": "Korisničko ime već postoji",
+  "errorCreatingAccount": "Stvaranje računa nije uspjelo",
+  "accountCreated": "Račun je stvoren",
+  "createAccount": "Stvori račun",
+  "firstName": "Ime",
+  "lastName": "Prezime",
+  "dateOfBirth": "Datum rođenja",
+  "username": "Korisničko ime",
+  "password": "Zaporka",
+  "logout": "Odjavi se",
+  "errorSavingChanges": "Promjene nisu spremljene",
+  "changesSaved": "Promjene su spremljene",
+  "newPassword": "Nova Zaporka",
+  "leaveBlankToKeep": "Bez promjene",
+  "save": "Spremi"
 }

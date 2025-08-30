@@ -488,6 +488,136 @@ class S {
       args: [],
     );
   }
+
+  /// `Please enter all fields`
+  String get pleaseEnterAllFields {
+    return Intl.message(
+      'Please enter all fields',
+      name: 'pleaseEnterAllFields',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This username is already taken`
+  String get usernameTaken {
+    return Intl.message(
+      'This username is already taken',
+      name: 'usernameTaken',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to create account`
+  String get errorCreatingAccount {
+    return Intl.message(
+      'Failed to create account',
+      name: 'errorCreatingAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Account created`
+  String get accountCreated {
+    return Intl.message(
+      'Account created',
+      name: 'accountCreated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create Account`
+  String get createAccount {
+    return Intl.message(
+      'Create Account',
+      name: 'createAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `First Name`
+  String get firstName {
+    return Intl.message('First Name', name: 'firstName', desc: '', args: []);
+  }
+
+  /// `Last Name`
+  String get lastName {
+    return Intl.message('Last Name', name: 'lastName', desc: '', args: []);
+  }
+
+  /// `Date of Birth`
+  String get dateOfBirth {
+    return Intl.message(
+      'Date of Birth',
+      name: 'dateOfBirth',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Username`
+  String get username {
+    return Intl.message('Username', name: 'username', desc: '', args: []);
+  }
+
+  /// `Password`
+  String get password {
+    return Intl.message('Password', name: 'password', desc: '', args: []);
+  }
+
+  /// `Logout`
+  String get logout {
+    return Intl.message('Logout', name: 'logout', desc: '', args: []);
+  }
+
+  /// `Failed to save changes`
+  String get errorSavingChanges {
+    return Intl.message(
+      'Failed to save changes',
+      name: 'errorSavingChanges',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Changes saved`
+  String get changesSaved {
+    return Intl.message(
+      'Changes saved',
+      name: 'changesSaved',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New Password`
+  String get newPassword {
+    return Intl.message(
+      'New Password',
+      name: 'newPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Leave blank to keep current`
+  String get leaveBlankToKeep {
+    return Intl.message(
+      'Leave blank to keep current',
+      name: 'leaveBlankToKeep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Save`
+  String get save {
+    return Intl.message('Save', name: 'save', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

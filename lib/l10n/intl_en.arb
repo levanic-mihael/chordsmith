@@ -57,5 +57,21 @@
   "createNewReport": "Create new report",
   "noReportsYet": "No reports yet",
   "generate": "Generate PDF",
-  "generatedOn": "Report generated on:"
+  "generatedOn": "Report generated on:",
+  "pleaseEnterAllFields": "Please enter all fields",
+  "usernameTaken": "This username is already taken",
+  "errorCreatingAccount": "Failed to create account",
+  "accountCreated": "Account created",
+  "createAccount": "Create Account",
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "dateOfBirth": "Date of Birth",
+  "username": "Username",
+  "password": "Password",
+  "logout": "Logout",
+  "errorSavingChanges": "Failed to save changes",
+  "changesSaved": "Changes saved",
+  "newPassword": "New Password",
+  "leaveBlankToKeep": "Leave blank to keep current",
+  "save": "Save"
 }

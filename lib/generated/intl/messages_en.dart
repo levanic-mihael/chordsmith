@@ -26,6 +26,7 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "account": MessageLookupByLibrary.simpleMessage("Account"),
+    "accountCreated": MessageLookupByLibrary.simpleMessage("Account created"),
     "alt": MessageLookupByLibrary.simpleMessage("Alt"),
     "alternative": MessageLookupByLibrary.simpleMessage("Alternative"),
     "alternativeChordSaved": MessageLookupByLibrary.simpleMessage(
@@ -36,10 +37,12 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "appTitle": MessageLookupByLibrary.simpleMessage("Chordsmith"),
     "cancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+    "changesSaved": MessageLookupByLibrary.simpleMessage("Changes saved"),
     "chord": MessageLookupByLibrary.simpleMessage("Chord"),
     "chordSaved": MessageLookupByLibrary.simpleMessage("Chord saved."),
     "confirmDeleteChord": m0,
     "create": MessageLookupByLibrary.simpleMessage("Create"),
+    "createAccount": MessageLookupByLibrary.simpleMessage("Create Account"),
     "createChord": MessageLookupByLibrary.simpleMessage("Create Chord"),
     "createNewReport": MessageLookupByLibrary.simpleMessage(
       "Create new report",
@@ -51,6 +54,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "customChords": MessageLookupByLibrary.simpleMessage("Custom Chords"),
     "darkMode": MessageLookupByLibrary.simpleMessage("Dark Mode"),
+    "dateOfBirth": MessageLookupByLibrary.simpleMessage("Date of Birth"),
     "deleteChord": MessageLookupByLibrary.simpleMessage("Delete Chord"),
     "edit": MessageLookupByLibrary.simpleMessage("Edit"),
     "editAlternativeChord": MessageLookupByLibrary.simpleMessage(
@@ -68,11 +72,24 @@ class MessageLookup extends MessageLookupByLibrary {
     "enterNameForNewChord": MessageLookupByLibrary.simpleMessage(
       "Enter name for new chord:",
     ),
+    "errorCreatingAccount": MessageLookupByLibrary.simpleMessage(
+      "Failed to create account",
+    ),
+    "errorSavingChanges": MessageLookupByLibrary.simpleMessage(
+      "Failed to save changes",
+    ),
     "favorites": MessageLookupByLibrary.simpleMessage("Favorites"),
+    "firstName": MessageLookupByLibrary.simpleMessage("First Name"),
     "generate": MessageLookupByLibrary.simpleMessage("Generate PDF"),
     "generatedOn": MessageLookupByLibrary.simpleMessage("Report generated on:"),
+    "lastName": MessageLookupByLibrary.simpleMessage("Last Name"),
+    "leaveBlankToKeep": MessageLookupByLibrary.simpleMessage(
+      "Leave blank to keep current",
+    ),
+    "logout": MessageLookupByLibrary.simpleMessage("Logout"),
     "markFavorite": MessageLookupByLibrary.simpleMessage("Mark as Favorite"),
     "newChord": MessageLookupByLibrary.simpleMessage("New Chord"),
+    "newPassword": MessageLookupByLibrary.simpleMessage("New Password"),
     "no": MessageLookupByLibrary.simpleMessage("No"),
     "noCustomChordsYet": MessageLookupByLibrary.simpleMessage(
       "No custom chords yet",
@@ -82,10 +99,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "noSuchChordFound": MessageLookupByLibrary.simpleMessage(
       "No such chord found",
     ),
+    "password": MessageLookupByLibrary.simpleMessage("Password"),
+    "pleaseEnterAllFields": MessageLookupByLibrary.simpleMessage(
+      "Please enter all fields",
+    ),
     "pleaseSetChordFingers": MessageLookupByLibrary.simpleMessage(
       "Please set chord fingers on fretboard",
     ),
     "reports": MessageLookupByLibrary.simpleMessage("Reports"),
+    "save": MessageLookupByLibrary.simpleMessage("Save"),
     "saveChord": MessageLookupByLibrary.simpleMessage("Save Chord"),
     "saveSettings": MessageLookupByLibrary.simpleMessage("Save Settings"),
     "search": MessageLookupByLibrary.simpleMessage("Search"),
@@ -112,6 +134,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "thisChord": MessageLookupByLibrary.simpleMessage("this chord"),
     "unknown": MessageLookupByLibrary.simpleMessage("Unknown"),
     "unmarkFavorite": MessageLookupByLibrary.simpleMessage("Unmark Favorite"),
+    "username": MessageLookupByLibrary.simpleMessage("Username"),
+    "usernameTaken": MessageLookupByLibrary.simpleMessage(
+      "This username is already taken",
+    ),
     "yes": MessageLookupByLibrary.simpleMessage("Yes"),
   };
 }

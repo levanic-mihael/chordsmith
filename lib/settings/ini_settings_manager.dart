@@ -7,7 +7,8 @@ class IniSettingsManager {
   static const String _fileName = 'chordsmith_settings.ini';
 
   Future<File> get _localFile async {
-    final directory = await getApplicationDocumentsDirectory();
+    final baseDir = await getApplicationDocumentsDirectory();
+    final directory = Directory('${baseDir.path}/Chordsmith');
     return File('${directory.path}/$_fileName');
   }
 

@@ -26,6 +26,7 @@ class MessageLookup extends MessageLookupByLibrary {
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "account": MessageLookupByLibrary.simpleMessage("Korisnički račun"),
+    "accountCreated": MessageLookupByLibrary.simpleMessage("Račun je stvoren"),
     "alt": MessageLookupByLibrary.simpleMessage("Alternativa"),
     "alternative": MessageLookupByLibrary.simpleMessage("Alternativa"),
     "alternativeChordSaved": MessageLookupByLibrary.simpleMessage(
@@ -36,10 +37,14 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "appTitle": MessageLookupByLibrary.simpleMessage("Chordsmith"),
     "cancel": MessageLookupByLibrary.simpleMessage("Odustani"),
+    "changesSaved": MessageLookupByLibrary.simpleMessage(
+      "Promjene su spremljene",
+    ),
     "chord": MessageLookupByLibrary.simpleMessage("Akord"),
     "chordSaved": MessageLookupByLibrary.simpleMessage("Akord je spremljen."),
     "confirmDeleteChord": m0,
     "create": MessageLookupByLibrary.simpleMessage("Izradi"),
+    "createAccount": MessageLookupByLibrary.simpleMessage("Stvori račun"),
     "createChord": MessageLookupByLibrary.simpleMessage("Izradi akord"),
     "createNewReport": MessageLookupByLibrary.simpleMessage(
       "Izradi novi izvještaj",
@@ -51,6 +56,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "customChords": MessageLookupByLibrary.simpleMessage("Prilagođeni akordi"),
     "darkMode": MessageLookupByLibrary.simpleMessage("Tamni način"),
+    "dateOfBirth": MessageLookupByLibrary.simpleMessage("Datum rođenja"),
     "deleteChord": MessageLookupByLibrary.simpleMessage("Izbriši akord"),
     "edit": MessageLookupByLibrary.simpleMessage("Uredi"),
     "editAlternativeChord": MessageLookupByLibrary.simpleMessage(
@@ -68,11 +74,22 @@ class MessageLookup extends MessageLookupByLibrary {
     "enterNameForNewChord": MessageLookupByLibrary.simpleMessage(
       "Unesite naziv novog akorda:",
     ),
+    "errorCreatingAccount": MessageLookupByLibrary.simpleMessage(
+      "Stvaranje računa nije uspjelo",
+    ),
+    "errorSavingChanges": MessageLookupByLibrary.simpleMessage(
+      "Promjene nisu spremljene",
+    ),
     "favorites": MessageLookupByLibrary.simpleMessage("Favoriti"),
+    "firstName": MessageLookupByLibrary.simpleMessage("Ime"),
     "generate": MessageLookupByLibrary.simpleMessage("Spremi kao PDF"),
     "generatedOn": MessageLookupByLibrary.simpleMessage("Izvještaj izrađen:"),
+    "lastName": MessageLookupByLibrary.simpleMessage("Prezime"),
+    "leaveBlankToKeep": MessageLookupByLibrary.simpleMessage("Bez promjene"),
+    "logout": MessageLookupByLibrary.simpleMessage("Odjavi se"),
     "markFavorite": MessageLookupByLibrary.simpleMessage("Označi kao favorit"),
     "newChord": MessageLookupByLibrary.simpleMessage("Novi akord"),
+    "newPassword": MessageLookupByLibrary.simpleMessage("Nova Zaporka"),
     "no": MessageLookupByLibrary.simpleMessage("Ne"),
     "noCustomChordsYet": MessageLookupByLibrary.simpleMessage(
       "Još nema prilagođenih akorda",
@@ -82,10 +99,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "noSuchChordFound": MessageLookupByLibrary.simpleMessage(
       "Takav akord nije pronađen",
     ),
+    "password": MessageLookupByLibrary.simpleMessage("Zaporka"),
+    "pleaseEnterAllFields": MessageLookupByLibrary.simpleMessage(
+      "Molimo unesite sva polja",
+    ),
     "pleaseSetChordFingers": MessageLookupByLibrary.simpleMessage(
       "Molimo postavite prste na pragove",
     ),
     "reports": MessageLookupByLibrary.simpleMessage("Izvještaji"),
+    "save": MessageLookupByLibrary.simpleMessage("Spremi"),
     "saveChord": MessageLookupByLibrary.simpleMessage("Spremi akord"),
     "saveSettings": MessageLookupByLibrary.simpleMessage("Spremi postavke"),
     "search": MessageLookupByLibrary.simpleMessage("Pretraži"),
@@ -115,6 +137,10 @@ class MessageLookup extends MessageLookupByLibrary {
     "unknown": MessageLookupByLibrary.simpleMessage("Nepoznato"),
     "unmarkFavorite": MessageLookupByLibrary.simpleMessage(
       "Ukloni iz favorita",
+    ),
+    "username": MessageLookupByLibrary.simpleMessage("Korisničko ime"),
+    "usernameTaken": MessageLookupByLibrary.simpleMessage(
+      "Korisničko ime već postoji",
     ),
     "yes": MessageLookupByLibrary.simpleMessage("Da"),
   };

@@ -45,6 +45,10 @@ dependencies:
   pdf: ^3.10.1
   printing: ^5.9.0
   xml:
+  encrypt:
+  crypto:
+  pointycastle:
+  asn1lib:
 
 dev_dependencies:
   flutter_test:
