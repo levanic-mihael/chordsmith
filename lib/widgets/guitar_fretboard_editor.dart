@@ -8,12 +8,12 @@ class GuitarFretboardEditor extends StatefulWidget {
   final void Function(List<String> tabs)? onChanged;
 
   const GuitarFretboardEditor({
-    Key? key,
+    super.key,
     this.fretCount = 7,
     this.initialOffset = 0,
     this.initialNeckMarks, // new parameter
     this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   _GuitarFretboardEditorState createState() => _GuitarFretboardEditorState();

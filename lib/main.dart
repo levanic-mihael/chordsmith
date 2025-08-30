@@ -23,8 +23,6 @@ void main() async {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   } else if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-    // For mobile platforms, use default sqflite factory. No init needed.
-    // databaseFactory remains default
   }
 
   await ChordDatabase.instance.database;
@@ -94,8 +92,6 @@ class _ChordsmithAppState extends State<ChordsmithApp> {
       onSecondary: Colors.grey.shade300,
       surface: const Color(0xFF1F1F1F),
       onSurface: Colors.grey.shade300,
-      background: const Color(0xFF121212),
-      onBackground: Colors.grey.shade300,
     ),
   );
 

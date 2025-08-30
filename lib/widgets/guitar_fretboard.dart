@@ -11,12 +11,12 @@ class GuitarFretboard extends StatelessWidget {
   static const int muteMark = -2;
 
   const GuitarFretboard({
-    Key? key,
+    super.key,
     required this.neckMarks,
     this.fretCount = 7,
     this.fretboardOffset = 0,
     this.onFretTap,
-  }) : super(key: key);
+  });
 
   String fretDisplay(int fretIdx) {
     return fretIdx == 0 ? "0" : "${fretIdx + fretboardOffset}";
@@ -131,7 +131,7 @@ class GuitarFretboard extends StatelessWidget {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: (isMuted ? Colors.red : circleColor).withOpacity(0.5),
+                                color: (isMuted ? Colors.red : circleColor).withValues(alpha: 0.5),
                                 blurRadius: 4,
                                 offset: const Offset(1, 1),
                               ),

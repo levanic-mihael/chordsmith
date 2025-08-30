@@ -7,10 +7,10 @@ import '../generated/l10n.dart';
 enum ChordCreateType { custom, alternative }
 
 class CreateChordScreen extends StatefulWidget {
-  const CreateChordScreen({Key? key}) : super(key: key);
+  const CreateChordScreen({super.key});
 
   @override
-  _CreateChordScreenState createState() => _CreateChordScreenState();
+  State<CreateChordScreen> createState() => _CreateChordScreenState();
 }
 
 class _CreateChordScreenState extends State<CreateChordScreen> {
@@ -127,8 +127,6 @@ class _CreateChordScreenState extends State<CreateChordScreen> {
   }
 
   Widget _buildAltSpecifier() {
-    final strings = S.of(context);
-
     return Column(
       children: [
         Wrap(

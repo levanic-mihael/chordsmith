@@ -5,7 +5,7 @@ import '../settings/ini_settings_manager.dart';
 class SettingsScreen extends StatefulWidget {
   final void Function(Locale locale, bool darkMode) onSettingsChanged;
 
-  const SettingsScreen({Key? key, required this.onSettingsChanged}) : super(key: key);
+  const SettingsScreen({super.key, required this.onSettingsChanged});
 
   @override
   State createState() => _SettingsScreenState();
@@ -57,12 +57,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: _selectedLocale,
               items: const [
                 DropdownMenuItem(
-                  child: Text('English'),
                   value: Locale('en'),
+                  child: Text('English'),
                 ),
                 DropdownMenuItem(
-                  child: Text('Hrvatski'),
                   value: Locale('hr'),
+                  child: Text('Hrvatski'),
                 ),
               ],
               onChanged: (value) {

@@ -4,7 +4,7 @@ import '../widgets/guitar_fretboard.dart';
 import '../generated/l10n.dart';
 
 class FavoritesScreen extends StatefulWidget {
-  const FavoritesScreen({Key? key}) : super(key: key);
+  const FavoritesScreen({super.key});
 
   @override
   State createState() => _FavoritesScreenState();

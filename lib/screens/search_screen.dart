@@ -7,7 +7,7 @@ import '../generated/l10n.dart';
 enum SearchMode { standard, custom }
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({Key? key}) : super(key: key);
+  const SearchScreen({super.key});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -276,7 +276,6 @@ class _SearchScreenState extends State<SearchScreen> {
       void Function(int) onTap, {
         Set? enabledIds,
       }) {
-    final strings = S.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Wrap(

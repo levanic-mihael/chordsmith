@@ -4,7 +4,7 @@ import '../widgets/guitar_fretboard_editor.dart';
 import '../generated/l10n.dart';
 
 class EditChordScreen extends StatefulWidget {
-  const EditChordScreen({Key? key}) : super(key: key);
+  const EditChordScreen({super.key});
 
   @override
   State createState() => _EditChordScreenState();
