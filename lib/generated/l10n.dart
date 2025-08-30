@@ -453,6 +453,41 @@ class S {
   String get account {
     return Intl.message('Account', name: 'account', desc: '', args: []);
   }
+
+  /// `Create new report`
+  String get createNewReport {
+    return Intl.message(
+      'Create new report',
+      name: 'createNewReport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No reports yet`
+  String get noReportsYet {
+    return Intl.message(
+      'No reports yet',
+      name: 'noReportsYet',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Generate PDF`
+  String get generate {
+    return Intl.message('Generate PDF', name: 'generate', desc: '', args: []);
+  }
+
+  /// `Report generated on:`
+  String get generatedOn {
+    return Intl.message(
+      'Report generated on:',
+      name: 'generatedOn',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

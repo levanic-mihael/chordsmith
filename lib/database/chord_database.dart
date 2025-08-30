@@ -281,7 +281,6 @@ class ChordDatabase {
     return await db.update('CustomChord', {'favorite': favorite}, where: 'id = ?', whereArgs: [chordId]);
   }
 
-  // New methods for deleting chords
 
   Future<int> deleteAlternativeChord(int id) async {
     final db = await database;
@@ -292,8 +291,6 @@ class ChordDatabase {
     final db = await database;
     return await db.delete('CustomChord', where: 'id = ?', whereArgs: [id]);
   }
-
-  // Also add update methods to update tabs_frets on alternative and custom chords for editing
 
   Future<int> updateAlternativeChordTabs(int id, String tabs) async {
     final db = await database;

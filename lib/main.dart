@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
-
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite/sqflite.dart';
-
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'screens/chordsmith_home.dart';
-
 import 'database/chord_database.dart';
-
 import 'settings/ini_settings_manager.dart';
-
 import 'generated/l10n.dart';
 
 void main() async {

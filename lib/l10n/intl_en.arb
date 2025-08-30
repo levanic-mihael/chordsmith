@@ -53,5 +53,9 @@
   "customChords": "Custom Chords",
   "noCustomChordsYet": "No custom chords yet",
   "alt": "Alt",
-  "account": "Account"
+  "account": "Account",
+  "createNewReport": "Create new report",
+  "noReportsYet": "No reports yet",
+  "generate": "Generate PDF",
+  "generatedOn": "Report generated on:"
 }

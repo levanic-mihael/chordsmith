@@ -41,6 +41,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "confirmDeleteChord": m0,
     "create": MessageLookupByLibrary.simpleMessage("Izradi"),
     "createChord": MessageLookupByLibrary.simpleMessage("Izradi akord"),
+    "createNewReport": MessageLookupByLibrary.simpleMessage(
+      "Izradi novi izvještaj",
+    ),
     "custom": MessageLookupByLibrary.simpleMessage("Prilagođeno"),
     "customChord": MessageLookupByLibrary.simpleMessage("Prilagođeni akord"),
     "customChordSaved": MessageLookupByLibrary.simpleMessage(
@@ -66,6 +69,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "Unesite naziv novog akorda:",
     ),
     "favorites": MessageLookupByLibrary.simpleMessage("Favoriti"),
+    "generate": MessageLookupByLibrary.simpleMessage("Spremi kao PDF"),
+    "generatedOn": MessageLookupByLibrary.simpleMessage("Izvještaj izrađen:"),
     "markFavorite": MessageLookupByLibrary.simpleMessage("Označi kao favorit"),
     "newChord": MessageLookupByLibrary.simpleMessage("Novi akord"),
     "no": MessageLookupByLibrary.simpleMessage("Ne"),
@@ -73,6 +78,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Još nema prilagođenih akorda",
     ),
     "noFavoritesYet": MessageLookupByLibrary.simpleMessage("Još nema favorita"),
+    "noReportsYet": MessageLookupByLibrary.simpleMessage("Nema još izvještaja"),
     "noSuchChordFound": MessageLookupByLibrary.simpleMessage(
       "Takav akord nije pronađen",
     ),

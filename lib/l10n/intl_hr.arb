@@ -53,5 +53,9 @@
   "customChords": "Prilagođeni akordi",
   "noCustomChordsYet": "Još nema prilagođenih akorda",
   "alt": "Alternativa",
-  "account": "Korisnički račun"
+  "account": "Korisnički račun",
+  "createNewReport": "Izradi novi izvještaj",
+  "noReportsYet": "Nema još izvještaja",
+  "generate": "Spremi kao PDF",
+  "generatedOn": "Izvještaj izrađen:"
 }

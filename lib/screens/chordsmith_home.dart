@@ -6,6 +6,7 @@ import 'create_chord_screen.dart';
 import 'edit_chord_screen.dart';
 import 'favorites_screen.dart';
 import 'settings_screen.dart';
+import 'reports_screen.dart';
 import '../generated/l10n.dart';
 
 class ChordsmithHome extends StatelessWidget {
@@ -38,7 +39,7 @@ class ChordsmithHome extends StatelessWidget {
         Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoritesScreen()));
       }),
       _MainAction(label: strings.reports, icon: Icons.picture_as_pdf, onTap: () {
-        // TODO
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen()));
       }),
     ];
 

@@ -41,6 +41,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "confirmDeleteChord": m0,
     "create": MessageLookupByLibrary.simpleMessage("Create"),
     "createChord": MessageLookupByLibrary.simpleMessage("Create Chord"),
+    "createNewReport": MessageLookupByLibrary.simpleMessage(
+      "Create new report",
+    ),
     "custom": MessageLookupByLibrary.simpleMessage("Custom"),
     "customChord": MessageLookupByLibrary.simpleMessage("Custom Chord"),
     "customChordSaved": MessageLookupByLibrary.simpleMessage(
@@ -66,6 +69,8 @@ class MessageLookup extends MessageLookupByLibrary {
       "Enter name for new chord:",
     ),
     "favorites": MessageLookupByLibrary.simpleMessage("Favorites"),
+    "generate": MessageLookupByLibrary.simpleMessage("Generate PDF"),
+    "generatedOn": MessageLookupByLibrary.simpleMessage("Report generated on:"),
     "markFavorite": MessageLookupByLibrary.simpleMessage("Mark as Favorite"),
     "newChord": MessageLookupByLibrary.simpleMessage("New Chord"),
     "no": MessageLookupByLibrary.simpleMessage("No"),
@@ -73,6 +78,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "No custom chords yet",
     ),
     "noFavoritesYet": MessageLookupByLibrary.simpleMessage("No favorites yet"),
+    "noReportsYet": MessageLookupByLibrary.simpleMessage("No reports yet"),
     "noSuchChordFound": MessageLookupByLibrary.simpleMessage(
       "No such chord found",
     ),
