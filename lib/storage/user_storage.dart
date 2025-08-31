@@ -7,7 +7,6 @@ import 'package:encrypt/encrypt.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:xml/xml.dart';
 
-import 'admin_storage.dart';
 
 class UserStorage {
   static const String _fileName = 'user_storage.xml';
@@ -197,7 +196,8 @@ class UserStorage {
     final index = root.children.indexOf(targetUser);
     if (index == -1) return false;
 
-    root.children[index] = newUserElement;
+    root.children.removeAt(index);
+    root.children.insert(index, newUserElement.copy());
 
     try {
       await _file.writeAsString(_document.toXmlString(pretty: true));

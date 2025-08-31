@@ -2,28 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'screens/chordsmith_home.dart';
+import 'screens/settings_screen.dart';
+import 'screens/account_screen.dart';
 import 'database/chord_database.dart';
+import 'widgets/chordsmith_app_bar.dart';
 import 'settings/ini_settings_manager.dart';
 import 'generated/l10n.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-  } else if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
   }
 
   await ChordDatabase.instance.database;
-
   final settingsManager = IniSettingsManager();
   final settings = await settingsManager.loadSettings();
-
   runApp(ChordsmithApp(
     locale: Locale(settings['language']),
     darkModeEnabled: settings['darkMode'],
@@ -33,15 +31,23 @@ void main() async {
 class ChordsmithApp extends StatefulWidget {
   final Locale locale;
   final bool darkModeEnabled;
-  const ChordsmithApp({super.key, required this.locale, required this.darkModeEnabled});
+
+  const ChordsmithApp({
+    super.key,
+    required this.locale,
+    required this.darkModeEnabled,
+  });
 
   @override
-  State createState() => _ChordsmithAppState();
+  State<ChordsmithApp> createState() => _ChordsmithAppState();
 }
 
 class _ChordsmithAppState extends State<ChordsmithApp> {
   late Locale _locale;
   late bool _darkModeEnabled;
+
+  bool _isLoggedIn = false;
+  String? _loggedUsername;
 
   @override
   void initState() {
@@ -57,15 +63,39 @@ class _ChordsmithAppState extends State<ChordsmithApp> {
     });
   }
 
+  void handleLoginSuccess(String username, BuildContext context) {
+    setState(() {
+      _isLoggedIn = true;
+      _loggedUsername = username;
+    });
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => AccountScreen(
+        username: username,
+        onLogout: handleLogout,
+      ),
+    ));
+  }
+
+  void handleLogout() {
+    setState(() {
+      _isLoggedIn = false;
+      _loggedUsername = null;
+    });
+  }
+
   final ThemeData _customDarkTheme = ThemeData.dark().copyWith(
     scaffoldBackgroundColor: const Color(0xFF121212),
     primaryColor: Colors.blue.shade700,
-    iconTheme: IconThemeData(color: Colors.grey.shade300),
+    iconTheme: const IconThemeData(color: Color(0xFFD6D6D6)),
     appBarTheme: AppBarTheme(
       backgroundColor: const Color(0xFF1F1F1F),
       foregroundColor: Colors.grey.shade300,
-      iconTheme: IconThemeData(color: Colors.grey.shade300),
-      titleTextStyle: TextStyle(color: Colors.grey.shade300, fontSize: 20, fontWeight: FontWeight.w600),
+      iconTheme: const IconThemeData(color: Color(0xFFD6D6D6)),
+      titleTextStyle: const TextStyle(
+        color: Color(0xFFD6D6D6),
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
     ),
     textTheme: TextTheme(
       bodyLarge: TextStyle(color: Colors.grey.shade300),
@@ -104,7 +134,27 @@ class _ChordsmithAppState extends State<ChordsmithApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: S.delegate.supportedLocales,
-      home: ChordsmithHome(onSettingsChanged: updateSettings),
+      home: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(80),
+          child: Builder(
+            builder: (context) => ChordsmithAppBar(
+              onSettingsPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsScreen(
+                  onSettingsChanged: updateSettings,
+                )));
+              },
+              onLoginSuccess: (username) => handleLoginSuccess(username, context),
+              onLogout: handleLogout,
+              loggedUsername: _loggedUsername,
+              isLoggedIn: _isLoggedIn,
+            ),
+          ),
+        ),
+        body: ChordsmithHome(
+          onSettingsChanged: updateSettings,
+        ),
+      ),
       debugShowCheckedModeBanner: false,
     );
   }

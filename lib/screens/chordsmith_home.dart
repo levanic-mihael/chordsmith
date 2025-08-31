@@ -9,13 +9,20 @@ import 'favorites_screen.dart';
 import 'reports_screen.dart';
 import 'settings_screen.dart';
 import '../generated/l10n.dart';
-import 'admin_auth_popup.dart';
-import 'create_account_screen.dart';
 
 class ChordsmithHome extends StatelessWidget {
   final void Function(Locale locale, bool darkMode)? onSettingsChanged;
+  final bool isLoggedIn;
+  final String? loggedInUsername;
+  final void Function(String username)? onLoginSuccess;
 
-  const ChordsmithHome({super.key, this.onSettingsChanged});
+  const ChordsmithHome({
+    super.key,
+    this.onSettingsChanged,
+    this.isLoggedIn = false,
+    this.loggedInUsername,
+    this.onLoginSuccess,
+  });
 
   static const double horizontalMargin = 24.0;
   static const double buttonSpacing = 20.0;
@@ -70,16 +77,6 @@ class ChordsmithHome extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
-        child: ChordsmithAppBar(
-          onSettingsPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsScreen(
-              onSettingsChanged: onSettingsChanged ?? (_, __) {},
-            )));
-          },
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: horizontalMargin),
         child: Center(
@@ -87,14 +84,16 @@ class ChordsmithHome extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ...actions.map((action) => Padding(
-                  padding: const EdgeInsets.only(bottom: buttonSpacing),
-                  child: ChordsmithMainButton(
-                    label: action.label,
-                    icon: action.icon,
-                    onTap: action.onTap,
+                ...actions.map(
+                      (action) => Padding(
+                    padding: const EdgeInsets.only(bottom: buttonSpacing),
+                    child: ChordsmithMainButton(
+                      label: action.label,
+                      icon: action.icon,
+                      onTap: action.onTap,
+                    ),
                   ),
-                )),
+                ),
               ],
             ),
           ),
@@ -109,5 +108,9 @@ class _MainAction {
   final IconData icon;
   final VoidCallback onTap;
 
-  _MainAction({required this.label, required this.icon, required this.onTap});
+  _MainAction({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
 }
