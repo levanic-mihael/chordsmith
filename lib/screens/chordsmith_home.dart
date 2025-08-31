@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/chordsmith_app_bar.dart';
 import '../widgets/chordsmith_main_button.dart';
 import 'search_screen.dart';
 import 'create_chord_screen.dart';
 import 'edit_chord_screen.dart';
 import 'favorites_screen.dart';
 import 'reports_screen.dart';
-import 'settings_screen.dart';
 import '../generated/l10n.dart';
 
 class ChordsmithHome extends StatelessWidget {
