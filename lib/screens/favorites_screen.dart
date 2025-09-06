@@ -143,7 +143,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     }
 
     if (selectedChord != null && displayTabs != null) {
-      // Display only fretboard and back button
       return Scaffold(
         appBar: AppBar(
           title: Text(

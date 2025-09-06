@@ -21,7 +21,7 @@ class UserStorage {
     return File('${directory.path}/$_fileName');
   }
 
-  /// Initializes storage by loading or creating the XML file
+  // Initializes storage by loading or creating the XML file
   Future<void> init() async {
     if (_initialized) return;
 
@@ -40,14 +40,14 @@ class UserStorage {
     _initialized = true;
   }
 
-  /// SHA256 hash utility as hex string
+  // SHA256 hash utility as hex string
   String sha256Hash(String input) {
     final bytes = utf8.encode(input);
     final digest = sha256.convert(bytes);
     return digest.toString();
   }
 
-  /// AES encryption utility: encrypt plaintext bytes with key and IV (zero IV)
+  // AES encryption utility: encrypt plaintext bytes with key and IV (zero IV)
   Uint8List aesEncrypt(Uint8List plaintext, Uint8List key, Uint8List iv) {
     final aesKey = Key(key);
     final encrypter = Encrypter(AES(aesKey, mode: AESMode.cbc));
@@ -55,7 +55,7 @@ class UserStorage {
     return Uint8List.fromList(encrypted.bytes);
   }
 
-  /// AES decryption utility: decrypt ciphertext bytes with key and IV (zero IV)
+  // AES decryption utility: decrypt ciphertext bytes with key and IV (zero IV)
   Uint8List aesDecrypt(Uint8List ciphertext, Uint8List key, Uint8List iv) {
     final aesKey = Key(key);
     final encrypter = Encrypter(AES(aesKey, mode: AESMode.cbc));
@@ -63,13 +63,13 @@ class UserStorage {
     return Uint8List.fromList(decrypted);
   }
 
-  /// Derives AES key (16 bytes) from admin password (SHA-256 + truncation)
+  // Derives AES key (16 bytes) from admin password (SHA-256 + truncation)
   Uint8List _deriveKey(String adminPassword) {
     final hash = sha256.convert(utf8.encode(adminPassword)).bytes;
     return Uint8List.fromList(hash.sublist(0, 16));
   }
 
-  /// Creates a new user account if admin authorized and username is unique
+  // Creates a new user account if admin authorized and username is unique
   Future<bool> createAccount(
       String username,
       String password,
@@ -110,9 +110,6 @@ class UserStorage {
     return true;
   }
 
-  /// Attempts to login using username and password
-  /// Compares hashed password and tries decrypting the encrypted password to verify
-  /// Returns true if credentials valid, false otherwise
   Future<bool> login(String username, String password) async {
     await init();
 
@@ -132,14 +129,9 @@ class UserStorage {
     final storedHashedPwd = userElem.getAttribute('password') ?? '';
     final hashedPwd = sha256Hash(password);
     if (hashedPwd != storedHashedPwd) return false;
-
-    // Verify encrypted password decrypts to the same password using any known admin keys
-    // For simplicity, try decrypting with the stored admin password (needs app flow to provide it)
-    // Here just trust the password hash check for login success
     return true;
   }
 
-  /// Returns list of all users as maps with keys 'username','password','encrypted_password'
   Future<List<Map<String, String>>> getAllUsers() async {
     await init();
 
@@ -154,12 +146,10 @@ class UserStorage {
     return users;
   }
 
-  /// Updates password of a user and rewrites XML file
-  /// Returns true on success, false on failure
   Future<bool> updateUser(
       String username,
       String newPassword, {
-        required String adminPassword, // Must provide adminPassword to encrypt
+        required String adminPassword,
       }) async {
     await init();
 

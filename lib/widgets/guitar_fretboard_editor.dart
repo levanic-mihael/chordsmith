@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'guitar_fretboard.dart';
 
 class GuitarFretboardEditor extends StatefulWidget {
-  final List<List<int>>? initialNeckMarks; // Added to accept initial fret marks
+  final List<List<int>>? initialNeckMarks;
   final int fretCount;
   final int initialOffset;
   final void Function(List<String> tabs)? onChanged;
@@ -11,7 +11,7 @@ class GuitarFretboardEditor extends StatefulWidget {
     super.key,
     this.fretCount = 7,
     this.initialOffset = 0,
-    this.initialNeckMarks, // new parameter
+    this.initialNeckMarks,
     this.onChanged,
   });
 

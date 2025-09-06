@@ -42,7 +42,7 @@ class GuitarFretboard extends StatelessWidget {
     final usableWidth = availableWidth * 0.8;
     final firstColWidth = usableWidth * 0.12;
     final otherColWidth = (usableWidth - firstColWidth) / (fretCount - 1);
-    final firstColHeight = otherColWidth / 2; // Use same height as other frets for alignment
+    final firstColHeight = otherColWidth / 2;
     final otherColHeight = otherColWidth / 2;
 
     return Padding(
@@ -50,7 +50,6 @@ class GuitarFretboard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Left column with string names, matching rows height exactly with fret rows
           IntrinsicHeight(
             child: SizedBox(
               width: firstColWidth,
@@ -76,7 +75,6 @@ class GuitarFretboard extends StatelessWidget {
               ),
             ),
           ),
-          // Right: fretboard rows
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,

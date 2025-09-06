@@ -1,20 +1,18 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:math'; // Add this for Random
+import 'dart:math';
 
 import 'package:pointycastle/export.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:crypto/crypto.dart';
 import 'package:asn1lib/asn1lib.dart';
 
-// SHA-256 hash a string
 String sha256Hash(String input) {
   var bytes = utf8.encode(input);
   var digest = sha256.convert(bytes);
   return digest.toString();
 }
 
-// RSA Keypair generation (2048 bits)
 AsymmetricKeyPair<PublicKey, PrivateKey> generateRSAKeyPair() {
   final keyParams = RSAKeyGeneratorParameters(BigInt.parse('65537'), 2048, 12);
   final secureRandom = FortunaRandom();
@@ -30,7 +28,6 @@ AsymmetricKeyPair<PublicKey, PrivateKey> generateRSAKeyPair() {
   return generator.generateKeyPair();
 }
 
-// Convert Uint8List or List<int> to BigInt
 BigInt bytesToBigInt(Uint8List bytes) {
   BigInt result = BigInt.zero;
   for (final byte in bytes) {
@@ -39,7 +36,6 @@ BigInt bytesToBigInt(Uint8List bytes) {
   return result;
 }
 
-// Helper to safely convert dynamic input to BigInt (either Uint8List or BigInt)
 BigInt toBigInt(dynamic number) {
   if (number == null) throw ArgumentError('Key component cannot be null');
   if (number is BigInt) {
@@ -64,7 +60,7 @@ String encodePublicKeyToPemPKCS1(RSAPublicKey publicKey) {
 String encodePrivateKeyToPemPKCS1(RSAPrivateKey privateKey) {
   final topLevel = ASN1Sequence();
 
-  topLevel.add(ASN1Integer(BigInt.zero));  // version is always 0
+  topLevel.add(ASN1Integer(BigInt.zero));
 
   final n = toBigInt(privateKey.n);
   final e = toBigInt(privateKey.exponent);
@@ -85,14 +81,12 @@ String encodePrivateKeyToPemPKCS1(RSAPrivateKey privateKey) {
   return """-----BEGIN RSA PRIVATE KEY-----\r\n$dataBase64\r\n-----END RSA PRIVATE KEY-----""";
 }
 
-// RSA encrypt data with public key
 Uint8List rsaEncrypt(Uint8List dataToEncrypt, RSAPublicKey publicKey) {
   final encryptor = PKCS1Encoding(RSAEngine())
     ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
   return _processInBlocks(encryptor, dataToEncrypt);
 }
 
-// RSA decrypt data with private key
 Uint8List rsaDecrypt(Uint8List cipherText, RSAPrivateKey privateKey) {
   final decryptor = PKCS1Encoding(RSAEngine())
     ..init(false, PrivateKeyParameter<RSAPrivateKey>(privateKey));
@@ -112,7 +106,6 @@ Uint8List _processInBlocks(AsymmetricBlockCipher engine, Uint8List input) {
   return output.toBytes();
 }
 
-// AES Encrypt
 Uint8List aesEncrypt(Uint8List data, Uint8List key, Uint8List iv) {
   final cipher = PaddedBlockCipher('AES/CBC/PKCS7')
     ..init(true, PaddedBlockCipherParameters(
@@ -120,7 +113,6 @@ Uint8List aesEncrypt(Uint8List data, Uint8List key, Uint8List iv) {
   return cipher.process(data);
 }
 
-// AES Decrypt
 Uint8List aesDecrypt(Uint8List encrypted, Uint8List key, Uint8List iv) {
   final cipher = PaddedBlockCipher('AES/CBC/PKCS7')
     ..init(false, PaddedBlockCipherParameters(

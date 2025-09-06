@@ -19,14 +19,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   bool _isLoading = false;
 
   Future<bool> _isUsernameAvailable(String username) async {
-    // Check username availability by querying existing users
-    // Here just attempt to load all users and check if username exists
     final userStorage = UserStorage();
     await userStorage.init();
-    // Since no direct method, try login with dummy pwd to check existence
-    // Or you can implement a proper check in UserStorage:
-    // For simplicity:
-    final users = await userStorage.getAllUsers(); // You can add this method to user_storage.dart
+    final users = await userStorage.getAllUsers();
     return !users.any((u) => u['username'] == username);
   }
 
@@ -65,10 +60,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     final userStorage = UserStorage();
     await userStorage.init();
 
-    // Check username availability, implement getAllUsers() in UserStorage for better approach
-    // Here we assume username is available or you implement check inside createAccount()
     bool usernameAvailable = true;
-    // You can implement a method in UserStorage to check username existence or catch failure on duplicate username
     if (!usernameAvailable) {
       setState(() {
         _isLoading = false;

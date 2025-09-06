@@ -24,7 +24,6 @@ class ChordsmithAppBar extends StatelessWidget {
 
   Future<void> _handleAccountPressed(BuildContext context) async {
     if (isLoggedIn && loggedUsername != null) {
-      // If logged in, show account screen
       Navigator.of(context).push(MaterialPageRoute(
         builder: (_) => AccountScreen(
           username: loggedUsername!,
@@ -34,19 +33,16 @@ class ChordsmithAppBar extends StatelessWidget {
       return;
     }
 
-    // Not logged in: show login popup
     final userStorage = UserStorage();
     await userStorage.init();
     final adminStorage = AdminStorage();
     await adminStorage.init();
 
-    // Use local context saved here to avoid BuildContext across async gaps
     final localContext = context;
 
     showDialog(
       context: localContext,
       builder: (_) => LoginPopup(
-        // Correct named parameter
         authorizeAdmin: adminStorage.authorizeAdmin,
         onLoginSuccess: (username) {
           Navigator.of(localContext).pop();

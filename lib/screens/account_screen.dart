@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../storage/user_storage.dart';
-import '../storage/admin_storage.dart';
 
 class AccountScreen extends StatefulWidget {
   final String username;
