@@ -1,0 +1,15 @@
+{
+  "customChords": [
+    {
+      "name": "MyCustomChord1",
+      "tabs_frets": "X 3 2 0 1 0",
+      "favorite": 0
+    },
+    {
+      "name": "MyCustomChord2",
+      "tabs_frets": "0 2 2 1 0 0",
+      "favorite": 1
+    }
+  ]
+}
+
