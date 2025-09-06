@@ -73,5 +73,8 @@
   "changesSaved": "Changes saved",
   "newPassword": "New Password",
   "leaveBlankToKeep": "Leave blank to keep current",
-  "save": "Save"
+  "save": "Save",
+  "download": "Download",
+  "downloadChords": "Download Chords",
+  "selectSpeed": "Select download speed:"
 }

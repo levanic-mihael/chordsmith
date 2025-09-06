@@ -73,5 +73,8 @@
   "changesSaved": "Promjene su spremljene",
   "newPassword": "Nova Zaporka",
   "leaveBlankToKeep": "Bez promjene",
-  "save": "Spremi"
+  "save": "Spremi",
+  "download": "Preuzimanje",
+  "downloadChords": "Preuzmi akorde",
+  "selectSpeed": "Izaberi brzinu preuzimanja:"
 }

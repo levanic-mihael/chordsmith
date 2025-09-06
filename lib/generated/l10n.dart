@@ -618,6 +618,31 @@ class S {
   String get save {
     return Intl.message('Save', name: 'save', desc: '', args: []);
   }
+
+  /// `Download`
+  String get download {
+    return Intl.message('Download', name: 'download', desc: '', args: []);
+  }
+
+  /// `Download Chords`
+  String get downloadChords {
+    return Intl.message(
+      'Download Chords',
+      name: 'downloadChords',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select download speed:`
+  String get selectSpeed {
+    return Intl.message(
+      'Select download speed:',
+      name: 'selectSpeed',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

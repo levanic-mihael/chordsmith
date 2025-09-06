@@ -6,6 +6,7 @@ import 'create_chord_screen.dart';
 import 'edit_chord_screen.dart';
 import 'favorites_screen.dart';
 import 'reports_screen.dart';
+import 'download_screen.dart';
 import '../generated/l10n.dart';
 
 class ChordsmithHome extends StatelessWidget {
@@ -52,10 +53,10 @@ class ChordsmithHome extends StatelessWidget {
         },
       ),
       _MainAction(
-        label: strings.share,
-        icon: Icons.share,
+        label: strings.download,
+        icon: Icons.cloud_download,
         onTap: () {
-          // TODO: implement share action
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DownloadScreen()));
         },
       ),
       _MainAction(

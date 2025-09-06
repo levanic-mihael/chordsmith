@@ -56,6 +56,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "darkMode": MessageLookupByLibrary.simpleMessage("Dark Mode"),
     "dateOfBirth": MessageLookupByLibrary.simpleMessage("Date of Birth"),
     "deleteChord": MessageLookupByLibrary.simpleMessage("Delete Chord"),
+    "download": MessageLookupByLibrary.simpleMessage("Download"),
+    "downloadChords": MessageLookupByLibrary.simpleMessage("Download Chords"),
     "edit": MessageLookupByLibrary.simpleMessage("Edit"),
     "editAlternativeChord": MessageLookupByLibrary.simpleMessage(
       "Edit Alternative Chord",
@@ -118,6 +120,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Select Chord Type:",
     ),
     "selectMode": MessageLookupByLibrary.simpleMessage("Select Mode:"),
+    "selectSpeed": MessageLookupByLibrary.simpleMessage(
+      "Select download speed:",
+    ),
     "selectTone": MessageLookupByLibrary.simpleMessage("Select Tone:"),
     "selectToneModeType": MessageLookupByLibrary.simpleMessage(
       "Select tone, mode, and type.",

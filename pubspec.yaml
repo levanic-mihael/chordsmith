@@ -49,6 +49,7 @@ dependencies:
   crypto:
   pointycastle:
   asn1lib:
+  http:
 
 dev_dependencies:
   flutter_test:

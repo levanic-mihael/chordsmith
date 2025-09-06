@@ -58,6 +58,8 @@ class MessageLookup extends MessageLookupByLibrary {
     "darkMode": MessageLookupByLibrary.simpleMessage("Tamni način"),
     "dateOfBirth": MessageLookupByLibrary.simpleMessage("Datum rođenja"),
     "deleteChord": MessageLookupByLibrary.simpleMessage("Izbriši akord"),
+    "download": MessageLookupByLibrary.simpleMessage("Preuzimanje"),
+    "downloadChords": MessageLookupByLibrary.simpleMessage("Preuzmi akorde"),
     "edit": MessageLookupByLibrary.simpleMessage("Uredi"),
     "editAlternativeChord": MessageLookupByLibrary.simpleMessage(
       "Uredi alternativni akord",
@@ -118,6 +120,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Odaberite tip akorda:",
     ),
     "selectMode": MessageLookupByLibrary.simpleMessage("Odaberite mod:"),
+    "selectSpeed": MessageLookupByLibrary.simpleMessage(
+      "Izaberi brzinu preuzimanja:",
+    ),
     "selectTone": MessageLookupByLibrary.simpleMessage("Odaberite ton:"),
     "selectToneModeType": MessageLookupByLibrary.simpleMessage(
       "Odaberite ton, mod i tip.",
