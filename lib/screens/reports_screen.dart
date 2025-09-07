@@ -25,6 +25,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     _loadReports();
   }
 
+  // Directory for XML reports (same for all platforms)
   Future<Directory> _getReportsDirectory() async {
     final baseDir = await getApplicationDocumentsDirectory();
     final docDir = Directory('${baseDir.path}/Chordsmith');
@@ -35,11 +36,34 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return reportsDir;
   }
 
+  // Directory for saving PDFs - platform dependent
+  Future<Directory> _getPdfSaveDirectory() async {
+    if (Platform.isAndroid) {
+      final docsDir = Directory('/storage/emulated/0/Documents/Chordsmith');
+      if (!await docsDir.exists()) {
+        await docsDir.create(recursive: true);
+      }
+      return docsDir;
+    } else {
+      // For Windows and others fallback to app documents dir
+      final baseDir = await getApplicationDocumentsDirectory();
+      final docsDir = Directory('${baseDir.path}/Chordsmith');
+      if (!await docsDir.exists()) {
+        await docsDir.create(recursive: true);
+      }
+      return docsDir;
+    }
+  }
+
   Future<void> _loadReports() async {
     setState(() => _loading = true);
     final dir = await _getReportsDirectory();
-    final files = dir.listSync().where((e) => e.path.endsWith('.xml')).toList();
-    files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+    final files = dir
+        .listSync()
+        .where((e) => e.path.endsWith('.xml'))
+        .toList();
+    files.sort(
+            (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
     setState(() {
       _reports = files;
       _loading = false;
@@ -53,7 +77,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final alternativeChords = await db.query('AlternativeChord');
     final customChords = await db.query('CustomChord');
     final favoriteStandard = await db.query('Chord', where: 'favorite = 1');
-    final favoriteAlt = await db.query('AlternativeChord', where: 'favorite = 1');
+    final favoriteAlt =
+    await db.query('AlternativeChord', where: 'favorite = 1');
     final favoriteCustom = await db.query('CustomChord', where: 'favorite = 1');
 
     final favorites = [...favoriteStandard, ...favoriteAlt, ...favoriteCustom];
@@ -66,17 +91,23 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
       builder.element('AlternativeChords', nest: () {
         for (var chord in alternativeChords) {
-          builder.element('Chord', attributes: {'id': '${chord['id']}'}, nest: chord['tabs_frets'] ?? '');
+          builder.element('Chord',
+              attributes: {'id': '${chord['id']}'},
+              nest: chord['tabs_frets'] ?? '');
         }
       });
       builder.element('CustomChords', nest: () {
         for (var chord in customChords) {
-          builder.element('Chord', attributes: {'id': '${chord['id']}'}, nest: chord['tabs_frets'] ?? '');
+          builder.element('Chord',
+              attributes: {'id': '${chord['id']}'},
+              nest: chord['tabs_frets'] ?? '');
         }
       });
       builder.element('Favorites', nest: () {
         for (var chord in favorites) {
-          builder.element('Chord', attributes: {'id': '${chord['id']}'}, nest: chord['tabs_frets'] ?? '');
+          builder.element('Chord',
+              attributes: {'id': '${chord['id']}'},
+              nest: chord['tabs_frets'] ?? '');
         }
       });
     });
@@ -91,6 +122,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     await _loadReports();
     setState(() => _loading = false);
+  }
+
+  Future<String> _savePdfReport(List<int> pdfBytes) async {
+    final dir = await _getPdfSaveDirectory();
+    final fileName = 'report_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsBytes(pdfBytes);
+    return file.path;
   }
 
   @override
@@ -113,13 +152,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
             const SizedBox(height: 16),
             Expanded(
               child: _reports.isEmpty
-                  ? Center(child: Text(strings.noReportsYet ?? 'No reports yet.'))
+                  ? Center(
+                  child:
+                  Text(strings.noReportsYet ?? 'No reports yet'))
                   : ListView.builder(
                 itemCount: _reports.length,
                 itemBuilder: (context, index) {
                   final reportFile = _reports[index];
                   final modified = reportFile.statSync().modified;
-                  final name = reportFile.uri.pathSegments.last;
+                  final name =
+                      reportFile.uri.pathSegments.last;
                   return ListTile(
                     title: Text(name),
                     subtitle: Text(modified.toLocal().toString()),
@@ -127,7 +169,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ReportViewScreen(reportFile: File(reportFile.path)),
+                          builder: (context) =>
+                              ReportViewScreen(
+                                  reportFile:
+                                  File(reportFile.path)),
                         ),
                       );
                     },
