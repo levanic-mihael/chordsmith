@@ -10,6 +10,7 @@ import 'screens/account_screen.dart';
 import 'database/chord_database.dart';
 import 'widgets/chordsmith_app_bar.dart';
 import 'settings/ini_settings_manager.dart';
+import 'storage/admin_storage.dart';
 import 'generated/l10n.dart';
 
 void main() async {
@@ -19,9 +20,14 @@ void main() async {
     databaseFactory = databaseFactoryFfi;
   }
 
-  await ChordDatabase.instance.database;
-  final settingsManager = IniSettingsManager();
-  final settings = await settingsManager.loadSettings();
+  final futures = [
+    ChordDatabase.instance.database,
+    IniSettingsManager().loadSettings(),
+    AdminStorage().init(),
+  ];
+  final results = await Future.wait(futures);
+  final settings = results[1] as Map<String, dynamic>;
+
   runApp(ChordsmithApp(
     locale: Locale(settings['language']),
     darkModeEnabled: settings['darkMode'],
