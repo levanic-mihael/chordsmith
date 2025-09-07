@@ -234,17 +234,26 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future _toggleFavorite() async {
-    if (searchMode == SearchMode.standard && standardChord != null) {
-      final current = (standardChord!['favorite'] ?? 0) == 1;
-      await ChordDatabase.instance.updateStandardChordFavorite(standardChord!['id'] as int, current ? 0 : 1);
-      standardChord!['favorite'] = current ? 0 : 1;
-    } else if (searchMode == SearchMode.custom && selectedCustomChord != null) {
-      final current = (selectedCustomChord!['favorite'] ?? 0) == 1;
-      await ChordDatabase.instance.updateCustomChordFavorite(selectedCustomChord!['id'] as int, current ? 0 : 1);
-      selectedCustomChord!['favorite'] = current ? 0 : 1;
-    }
-    await _loadFavoriteStatus();
+    setState(() {
+      _isFavorite = !_isFavorite;
+    });
+
+    try {
+      if (searchMode == SearchMode.standard && standardChord != null) {
+        await ChordDatabase.instance.updateStandardChordFavorite(
+          standardChord!['id'] as int,
+          _isFavorite ? 1 : 0,
+        );
+      } else if (searchMode == SearchMode.custom && selectedCustomChord != null) {
+        await ChordDatabase.instance.updateCustomChordFavorite(
+          selectedCustomChord!['id'] as int,
+          _isFavorite ? 1 : 0,
+        );
+      }
+    } catch (e) {}
   }
+
+
 
   List<List<int>> _parseTabsToNeckMarks(String tabs) {
     const int noMark = -1;
