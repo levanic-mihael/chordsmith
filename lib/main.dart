@@ -159,6 +159,8 @@ class _ChordsmithAppState extends State<ChordsmithApp> {
         ),
         body: ChordsmithHome(
           onSettingsChanged: updateSettings,
+          isLoggedIn: _isLoggedIn,
+          loggedInUsername: _loggedUsername,
         ),
       ),
       debugShowCheckedModeBanner: false,
