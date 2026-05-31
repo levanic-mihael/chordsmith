@@ -263,7 +263,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (parts.length != 6) return List.generate(fretCount, (_) => List.filled(fretCount, noMark));
     List<List<int>> neckMarks = List.generate(6, (_) => List.filled(fretCount, noMark));
     for (int stringIdx = 0; stringIdx < 6; stringIdx++) {
-      final tabVal = parts[5 - stringIdx];
+      final tabVal = parts[stringIdx];
       if (tabVal == 'X') {
         neckMarks[stringIdx][0] = muteMark;
       } else if (tabVal == '0') {
@@ -278,65 +278,40 @@ class _SearchScreenState extends State<SearchScreen> {
     return neckMarks;
   }
 
-  Widget _buildButtonsToggle(
+  Widget _buildDropdown(
       List items,
       int? selectedId,
       String Function(dynamic) getLabel,
-      void Function(int) onTap, {
-        Set? enabledIds,
+      void Function(int) onChanged,
+      String hintText, {
+        Set<int>? enabledIds,
+        String? labelText,
       }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final ids = enabledIds;
+    final filtered = ids == null
+        ? items
+        : items.where((item) => ids.contains((item as dynamic).id as int)).toList();
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      alignment: WrapAlignment.center,
-      children: items.map((item) {
-        final id = (item as dynamic).id as int;
-        final label = getLabel(item);
-        final enabled = enabledIds == null || enabledIds.contains(id);
-        final selected = selectedId == id;
+    final validValue = filtered.any((item) => (item as dynamic).id == selectedId) ? selectedId : null;
 
-        Color backgroundColor;
-        Color borderColor;
-        Color textColor;
-
-        if (!enabled) {
-          backgroundColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
-          borderColor = isDark ? Colors.grey.shade700 : Colors.grey.shade400;
-          textColor = isDark ? Colors.grey.shade600 : Colors.grey.shade600;
-        } else {
-          if (selected) {
-            backgroundColor = Colors.blue.shade700;
-            borderColor = Colors.blue.shade700;
-            textColor = Colors.white;
-          } else {
-            backgroundColor = isDark ? Colors.grey.shade900 : Colors.white;
-            borderColor = isDark ? Colors.grey.shade700 : Colors.grey.shade400;
-            textColor = isDark ? Colors.grey.shade300 : Colors.black87;
-          }
-        }
-
-        return GestureDetector(
-          onTap: enabled ? () => onTap(id) : null,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: borderColor),
-            ),
-            child: Text(
-              label,
-              style: TextStyle(
-                color: textColor,
-                fontWeight: FontWeight.w600,
-                fontSize: 18,
-              ),
-            ),
-          ),
+    return DropdownButtonFormField<int>(
+      value: validValue,
+      hint: labelText == null ? Text(hintText) : null,
+      isExpanded: true,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: const OutlineInputBorder(),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      ),
+      items: filtered.map<DropdownMenuItem<int>>((item) {
+        return DropdownMenuItem<int>(
+          value: (item as dynamic).id as int,
+          child: Text(getLabel(item), style: const TextStyle(fontSize: 15)),
         );
       }).toList(),
+      onChanged: filtered.isEmpty ? null : (val) {
+        if (val != null) onChanged(val);
+      },
     );
   }
 
@@ -372,23 +347,52 @@ class _SearchScreenState extends State<SearchScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(strings.selectTone, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-        const SizedBox(height: 10),
-        _buildButtonsToggle(
-          tonalities,
-          selectedTonalityId,
-              (item) => (item as Tonality).name,
-          _selectTone,
+        // Three dropdowns side-by-side, capped at 600 px so they stay compact on landscape
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _buildDropdown(
+                    tonalities,
+                    selectedTonalityId,
+                    (item) => (item as Tonality).name,
+                    _selectTone,
+                    strings.selectTone,
+                    labelText: strings.selectTone,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildDropdown(
+                    modes,
+                    selectedModeId,
+                    (item) => (item as Mode).name,
+                    _selectMode,
+                    strings.selectMode,
+                    enabledIds: enabledModeIds,
+                    labelText: strings.selectMode,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildDropdown(
+                    chordTypes,
+                    selectedChordTypeId,
+                    (item) => (item as ChordType).name,
+                    _selectChordType,
+                    strings.selectChordType,
+                    enabledIds: enabledChordIds,
+                    labelText: strings.selectChordType,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 24),
-        Text(strings.selectMode, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-        const SizedBox(height: 10),
-        _buildButtonsToggle(modes, selectedModeId, (item) => (item as Mode).name, _selectMode, enabledIds: enabledModeIds),
-        const SizedBox(height: 24),
-        Text(strings.selectChordType, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-        const SizedBox(height: 10),
-        _buildButtonsToggle(chordTypes, selectedChordTypeId, (item) => (item as ChordType).name, _selectChordType, enabledIds: enabledChordIds),
-        const SizedBox(height: 28),
         ElevatedButton(
           onPressed: (selectedTonalityId != null && selectedModeId != null && selectedChordTypeId != null) ? _loadStandardChordAndAlternatives : null,
           child: Padding(
@@ -474,16 +478,72 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  Widget _buildFavoriteRow(S strings) => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: Icon(
+              _isFavorite ? Icons.star : Icons.star_border,
+              color: _isFavorite ? Colors.amber : Colors.grey,
+              size: 32,
+            ),
+            tooltip:
+                _isFavorite ? strings.unmarkFavorite : strings.markFavorite,
+            onPressed: _toggleFavorite,
+          ),
+        ],
+      );
+
   @override
   Widget build(BuildContext context) {
     final strings = S.of(context);
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
 
     if (loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    final appBar = AppBar(title: Text(strings.search), centerTitle: true);
+
+    // ── Portrait + chord visible ─────────────────────────────────────────────
+    // Use a tight, non-scrollable Column so the fretboard can fill the exact
+    // remaining vertical space via Expanded → LayoutBuilder sees finite height.
+    if (isPortrait && displayTabs != null) {
+      return Scaffold(
+        appBar: appBar,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildSearchModeToggle(),
+              const SizedBox(height: 8),
+              if (searchMode == SearchMode.standard) _buildStandardSelectors(),
+              if (feedbackMessage.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(feedbackMessage,
+                      style: const TextStyle(color: Colors.red, fontSize: 16)),
+                ),
+              _buildFavoriteRow(strings),
+              Expanded(
+                child: GuitarFretboard(
+                  neckMarks: _parseTabsToNeckMarks(displayTabs!),
+                  fretCount: fretCount,
+                  fretboardOffset: 0,
+                ),
+              ),
+              if (alternatives.isNotEmpty) _buildAlternativeTabsToggle(),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // ── All other cases: scrollable ──────────────────────────────────────────
     return Scaffold(
-      appBar: AppBar(title: Text(strings.search), centerTitle: true),
+      appBar: appBar,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -497,20 +557,12 @@ class _SearchScreenState extends State<SearchScreen> {
             if (feedbackMessage.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 18),
-                child: Text(feedbackMessage, style: const TextStyle(color: Colors.red, fontSize: 16)),
+                child: Text(feedbackMessage,
+                    style: const TextStyle(color: Colors.red, fontSize: 16)),
               ),
             if (displayTabs != null) ...[
               const SizedBox(height: 18),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: Icon(_isFavorite ? Icons.star : Icons.star_border, color: _isFavorite ? Colors.amber : Colors.grey, size: 32),
-                    tooltip: _isFavorite ? strings.unmarkFavorite : strings.markFavorite,
-                    onPressed: _toggleFavorite,
-                  ),
-                ],
-              ),
+              _buildFavoriteRow(strings),
               SizedBox(
                 width: MediaQuery.of(context).size.width * 0.9,
                 child: GuitarFretboard(

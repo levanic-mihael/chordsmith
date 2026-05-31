@@ -150,7 +150,7 @@ class _EditChordScreenState extends State<EditChordScreen> {
     List<List<int>> neckMarks = List.generate(6, (_) => List.filled(fretCount, noMark));
     for (int stringIdx = 0; stringIdx < 6; stringIdx++) {
       if (stringIdx >= tabs.length) continue;
-      String val = tabs[5 - stringIdx];
+      String val = tabs[stringIdx];
       if (val == 'X') {
         neckMarks[stringIdx][0] = muteMark;
       } else if (val == '0') {

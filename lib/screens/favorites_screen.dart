@@ -100,7 +100,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     if (parts.length != 6) return List.generate(6, (_) => List.filled(7, noMark));
     List<List<int>> neckMarks = List.generate(6, (_) => List.filled(7, noMark));
     for (int stringIdx = 0; stringIdx < 6; stringIdx++) {
-      final tabVal = parts[5 - stringIdx];
+      final tabVal = parts[stringIdx];
       if (tabVal == 'X') {
         neckMarks[stringIdx][0] = muteMark;
       } else if (tabVal == '0') {

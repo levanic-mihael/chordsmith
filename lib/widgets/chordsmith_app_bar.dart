@@ -70,46 +70,60 @@ class ChordsmithAppBar extends StatelessWidget {
       child: Container(
         height: 80,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            SizedBox(
-              width: 48,
-              height: 48,
-              child: IconButton(
-                icon: Icon(Icons.account_circle, size: 32, color: iconColor),
-                onPressed: () => _handleAccountPressed(context),
-                tooltip: S.of(context).account,
-                padding: EdgeInsets.zero,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              'Chordsmith',
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-                color: textColor,
-              ),
-            ),
-            const Spacer(),
-            if (isLoggedIn)
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: Text(
-                  loggedUsername ?? '',
-                  style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
+            // Always-centred title
+            Center(
+              child: Text(
+                'Chordsmith',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                  color: textColor,
                 ),
               ),
-            SizedBox(
-              width: 48,
-              height: 48,
-              child: IconButton(
-                icon: Icon(Icons.settings, size: 28, color: iconColor),
-                onPressed: onSettingsPressed,
-                tooltip: S.of(context).settings,
-                padding: EdgeInsets.zero,
+            ),
+            // Left: account icon
+            Positioned(
+              left: 0,
+              child: SizedBox(
+                width: 48,
+                height: 48,
+                child: IconButton(
+                  icon: Icon(Icons.account_circle, size: 32, color: iconColor),
+                  onPressed: () => _handleAccountPressed(context),
+                  tooltip: S.of(context).account,
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+            // Right: optional username + settings icon
+            Positioned(
+              right: 0,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isLoggedIn)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        loggedUsername ?? '',
+                        style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: IconButton(
+                      icon: Icon(Icons.settings, size: 28, color: iconColor),
+                      onPressed: onSettingsPressed,
+                      tooltip: S.of(context).settings,
+                      padding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

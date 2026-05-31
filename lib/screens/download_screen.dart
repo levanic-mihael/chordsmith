@@ -198,6 +198,11 @@ class _DownloadScreenState extends State<DownloadScreen> {
                         if (isDownloading || progress > 0)
                           Column(
                             children: [
+                              Text(
+                                '${(progress * 100).toStringAsFixed(0)}%',
+                                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 8),
                               LinearProgressIndicator(value: progress),
                               const SizedBox(height: 12),
                               Text(statusMessage),
