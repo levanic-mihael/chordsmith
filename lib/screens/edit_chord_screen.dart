@@ -136,6 +136,7 @@ class _EditChordScreenState extends State<EditChordScreen> {
       await ChordDatabase.instance.updateCustomChordTabs(editingChord!['id'], tabsString);
     }
 
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(strings.chordSaved)),
     );
@@ -269,7 +270,7 @@ class _EditChordScreenState extends State<EditChordScreen> {
                   const SizedBox(width: 48),
                 ],
               );
-            }).toList(),
+            }),
             const SizedBox(height: 24),
             Text(strings.alternativeChords, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
             ...alternativeChords.map((chord) {
@@ -300,7 +301,7 @@ class _EditChordScreenState extends State<EditChordScreen> {
                   ),
                 ],
               );
-            }).toList(),
+            }),
             const SizedBox(height: 24),
             Text(strings.customChords, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
             ...customChords.map((chord) {
@@ -331,7 +332,7 @@ class _EditChordScreenState extends State<EditChordScreen> {
                   ),
                 ],
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

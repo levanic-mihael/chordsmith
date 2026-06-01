@@ -38,6 +38,8 @@ class ChordsmithAppBar extends StatelessWidget {
     final adminStorage = AdminStorage();
     await adminStorage.init();
 
+    if (!context.mounted) return;
+
     final localContext = context;
 
     showDialog(

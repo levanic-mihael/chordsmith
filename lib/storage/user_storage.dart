@@ -18,6 +18,9 @@ class UserStorage {
   Future<File> get _localFile async {
     final baseDir = await getApplicationDocumentsDirectory();
     final directory = Directory('${baseDir.path}/Chordsmith');
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
     return File('${directory.path}/$_fileName');
   }
 

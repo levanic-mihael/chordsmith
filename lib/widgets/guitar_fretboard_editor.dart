@@ -16,7 +16,7 @@ class GuitarFretboardEditor extends StatefulWidget {
   });
 
   @override
-  _GuitarFretboardEditorState createState() => _GuitarFretboardEditorState();
+  State<GuitarFretboardEditor> createState() => _GuitarFretboardEditorState();
 }
 
 class _GuitarFretboardEditorState extends State<GuitarFretboardEditor> {

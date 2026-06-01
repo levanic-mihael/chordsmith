@@ -5,7 +5,7 @@ import '../storage/admin_storage.dart';
 class AdminAuthPopup extends StatefulWidget {
   final Function(bool authorized) onAdminVerified;
 
-  const AdminAuthPopup({Key? key, required this.onAdminVerified}) : super(key: key);
+  const AdminAuthPopup({super.key, required this.onAdminVerified});
 
   @override
   State createState() => _AdminAuthPopupState();
@@ -35,6 +35,7 @@ class _AdminAuthPopupState extends State<AdminAuthPopup> {
 
     final authorized = await adminStorage.authorizeAdmin(adminPwd);
 
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       if (!authorized) {

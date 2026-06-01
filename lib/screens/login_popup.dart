@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-typedef Future<bool> AuthorizeAdminCallback(String pwd);
-typedef Future<bool> LoginUserCallback(String username, String password);
-typedef Future<bool> CreateAccountCallback(String username, String password, String adminPassword);
+typedef AuthorizeAdminCallback = Future<bool> Function(String pwd);
+typedef LoginUserCallback = Future<bool> Function(String username, String password);
+typedef CreateAccountCallback = Future<bool> Function(String username, String password, String adminPassword);
 
 class LoginPopup extends StatefulWidget {
   final AuthorizeAdminCallback authorizeAdmin;
@@ -11,15 +11,15 @@ class LoginPopup extends StatefulWidget {
   final void Function(String username)? onLoginSuccess;
 
   const LoginPopup({
-    Key? key,
+    super.key,
     required this.authorizeAdmin,
     required this.loginUser,
     required this.createAccount,
     this.onLoginSuccess,
-  }) : super(key: key);
+  });
 
   @override
-  _LoginPopupState createState() => _LoginPopupState();
+  State<LoginPopup> createState() => _LoginPopupState();
 }
 
 class _LoginPopupState extends State<LoginPopup> {
@@ -36,6 +36,7 @@ class _LoginPopupState extends State<LoginPopup> {
     });
     final success =
     await widget.loginUser(_usernameController.text.trim(), _passwordController.text.trim());
+    if (!mounted) return;
     setState(() {
       _loading = false;
     });
@@ -57,6 +58,7 @@ class _LoginPopupState extends State<LoginPopup> {
       _passwordController.text.trim(),
       _adminPasswordController.text.trim(),
     );
+    if (!mounted) return;
     setState(() {
       _loading = false;
     });

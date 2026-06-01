@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:xml/xml.dart' as xml;
 
 import '../generated/l10n.dart';
@@ -54,6 +55,45 @@ class _ReportViewScreenState extends State<ReportViewScreen> {
     }
   }
 
+  /// Requests the storage permission needed to write to the public Downloads
+  /// folder on Android. Returns true when access is confirmed.
+  ///
+  /// * Android ≤ 10  — WRITE_EXTERNAL_STORAGE (+ requestLegacyExternalStorage)
+  /// * Android 11+   — MANAGE_EXTERNAL_STORAGE ("All files access")
+  Future<bool> _requestStoragePermission() async {
+    if (!Platform.isAndroid) return true;
+
+    if (await Permission.manageExternalStorage.isGranted) return true;
+    if (await Permission.storage.isGranted) return true;
+
+    final manageStatus = await Permission.manageExternalStorage.request();
+    if (manageStatus.isGranted) return true;
+
+    final storageStatus = await Permission.storage.request();
+    return storageStatus.isGranted;
+  }
+
+  /// Directory where the PDF is written.
+  /// Android: public Download/Chordsmith folder (navigable in the Files app),
+  /// falling back to the app documents folder if permission is denied.
+  /// Desktop: app documents folder.
+  Future<Directory> _getPdfSaveDirectory() async {
+    if (Platform.isAndroid) {
+      final granted = await _requestStoragePermission();
+      final path = granted
+          ? '/storage/emulated/0/Download/Chordsmith'
+          : '${(await getApplicationDocumentsDirectory()).path}/Chordsmith';
+      final dir = Directory(path);
+      if (!await dir.exists()) await dir.create(recursive: true);
+      return dir;
+    }
+
+    final baseDir = await getApplicationDocumentsDirectory();
+    final dir = Directory('${baseDir.path}/Chordsmith');
+    if (!await dir.exists()) await dir.create(recursive: true);
+    return dir;
+  }
+
   Future<void> _generatePdf() async {
     if (document == null) return;
 
@@ -82,16 +122,22 @@ class _ReportViewScreenState extends State<ReportViewScreen> {
       ),
     );
 
-    final baseDir = await getApplicationDocumentsDirectory();
-    final output = Directory('${baseDir.path}/Chordsmith');
+    final output = await _getPdfSaveDirectory();
     final pdfFilePath = '${output.path}/report_${DateTime.now().millisecondsSinceEpoch}.pdf';
     final pdfFile = File(pdfFilePath);
     await pdfFile.writeAsBytes(await pdf.save());
 
     if (!mounted) return;
 
+    final isDownloads = Platform.isAndroid &&
+        output.path.contains('/storage/emulated/0/Download');
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('PDF saved to $pdfFilePath')),
+      SnackBar(
+        content: Text(isDownloads
+            ? 'PDF saved to Downloads/Chordsmith'
+            : 'PDF saved to $pdfFilePath'),
+        duration: const Duration(seconds: 4),
+      ),
     );
   }
 

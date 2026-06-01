@@ -185,7 +185,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   onToggleFavorite: () => _toggleFavoriteStandard(chord['id'], favorite),
                   onTap: () => _selectChord('standard', chord),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 24),
             ],
             if (favoriteAlternativeChords.isNotEmpty) ...[
@@ -198,7 +198,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   onToggleFavorite: () => _toggleFavoriteAlternative(chord['id'], favorite),
                   onTap: () => _selectChord('alternative', chord),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 24),
             ],
             if (favoriteCustomChords.isNotEmpty) ...[
@@ -211,7 +211,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   onToggleFavorite: () => _toggleFavoriteCustom(chord['id'], favorite),
                   onTap: () => _selectChord('custom', chord),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 24),
             ],
             if (favoriteStandardChords.isEmpty && favoriteAlternativeChords.isEmpty && favoriteCustomChords.isEmpty)

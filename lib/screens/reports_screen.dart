@@ -36,25 +36,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return reportsDir;
   }
 
-  // Directory for saving PDFs - platform dependent
-  Future<Directory> _getPdfSaveDirectory() async {
-    if (Platform.isAndroid) {
-      final docsDir = Directory('/storage/emulated/0/Documents/Chordsmith');
-      if (!await docsDir.exists()) {
-        await docsDir.create(recursive: true);
-      }
-      return docsDir;
-    } else {
-      // For Windows and others fallback to app documents dir
-      final baseDir = await getApplicationDocumentsDirectory();
-      final docsDir = Directory('${baseDir.path}/Chordsmith');
-      if (!await docsDir.exists()) {
-        await docsDir.create(recursive: true);
-      }
-      return docsDir;
-    }
-  }
-
   Future<void> _loadReports() async {
     setState(() => _loading = true);
     final dir = await _getReportsDirectory();
@@ -124,14 +105,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
     setState(() => _loading = false);
   }
 
-  Future<String> _savePdfReport(List<int> pdfBytes) async {
-    final dir = await _getPdfSaveDirectory();
-    final fileName = 'report_${DateTime.now().millisecondsSinceEpoch}.pdf';
-    final file = File('${dir.path}/$fileName');
-    await file.writeAsBytes(pdfBytes);
-    return file.path;
-  }
-
   @override
   Widget build(BuildContext context) {
     final strings = S.of(context);
@@ -146,7 +119,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           children: [
             ElevatedButton.icon(
               icon: const Icon(Icons.add),
-              label: Text(strings.createNewReport ?? 'Create new report'),
+              label: Text(strings.createNewReport),
               onPressed: _createNewReport,
             ),
             const SizedBox(height: 16),
@@ -154,7 +127,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               child: _reports.isEmpty
                   ? Center(
                   child:
-                  Text(strings.noReportsYet ?? 'No reports yet'))
+                  Text(strings.noReportsYet))
                   : ListView.builder(
                 itemCount: _reports.length,
                 itemBuilder: (context, index) {

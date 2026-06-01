@@ -16,11 +16,18 @@ class AdminStorage {
   late RSAPrivateKey _privateKey;
   late RSAPublicKey _publicKey;
 
-  String _adminPassword = 'admin';
+  final String _adminPassword = 'admin';
 
   Future<void> init() async {
     final baseDir = await getApplicationDocumentsDirectory();
     final dir = Directory('${baseDir.path}/Chordsmith');
+    // Ensure the data directory exists before any file is read or written.
+    // On a fresh install (desktop or Android) this directory does not exist,
+    // and writing to a missing parent throws PathNotFoundException, which
+    // caused the app to hang on a black screen at startup.
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
     _adminFile = File('${dir.path}/admin.bin');
     _privateKeyFile = File('${dir.path}/private_key.pem');
     _publicKeyFile = File('${dir.path}/public_key.pem');

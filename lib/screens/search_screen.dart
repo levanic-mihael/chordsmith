@@ -250,7 +250,9 @@ class _SearchScreenState extends State<SearchScreen> {
           _isFavorite ? 1 : 0,
         );
       }
-    } catch (e) {}
+    } catch (_) {
+      // Best-effort favorite toggle; ignore persistence errors.
+    }
   }
 
 
@@ -295,6 +297,11 @@ class _SearchScreenState extends State<SearchScreen> {
     final validValue = filtered.any((item) => (item as dynamic).id == selectedId) ? selectedId : null;
 
     return DropdownButtonFormField<int>(
+      // `value` is deprecated in favour of `initialValue`, but these dropdowns
+      // are controlled: changing the tonality must clear the mode/chord-type
+      // selections on rebuild. `initialValue` only applies once and would not
+      // reflect those resets, so we intentionally keep using `value`.
+      // ignore: deprecated_member_use
       value: validValue,
       hint: labelText == null ? Text(hintText) : null,
       isExpanded: true,
@@ -472,7 +479,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 _loadFavoriteStatus();
               },
             );
-          }).toList(),
+          }),
         ],
       ),
     );

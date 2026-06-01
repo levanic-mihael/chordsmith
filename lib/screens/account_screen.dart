@@ -6,8 +6,7 @@ class AccountScreen extends StatefulWidget {
   final String username;
   final VoidCallback? onLogout;
 
-  const AccountScreen({Key? key, required this.username, this.onLogout})
-      : super(key: key);
+  const AccountScreen({super.key, required this.username, this.onLogout});
 
   @override
   State<AccountScreen> createState() => _AccountScreenState();

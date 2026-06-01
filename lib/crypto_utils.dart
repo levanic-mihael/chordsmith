@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'dart:math';
 
 import 'package:pointycastle/export.dart';
-import 'package:pointycastle/asymmetric/api.dart';
 import 'package:crypto/crypto.dart';
 import 'package:asn1lib/asn1lib.dart';
 
@@ -66,7 +65,7 @@ String encodePrivateKeyToPemPKCS1(RSAPrivateKey privateKey) {
   final e = toBigInt(privateKey.exponent);
   final p = toBigInt(privateKey.p);
   final q = toBigInt(privateKey.q);
-  final d = toBigInt(privateKey.d);
+  final d = toBigInt(privateKey.privateExponent);
 
   topLevel.add(ASN1Integer(n));
   topLevel.add(ASN1Integer(e));

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -16,7 +15,7 @@ class DownloadScreen extends StatefulWidget {
 }
 
 class _DownloadScreenState extends State<DownloadScreen> {
-  static const String Url =
+  static const String downloadUrl =
       'https://raw.githubusercontent.com/levanic-mihael/chordsmith/refs/heads/master/custom_chords.json';
 
   final List<_SpeedOption> speedOptions = [
@@ -47,7 +46,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
     });
 
     try {
-      final uri = Uri.parse(Url);
+      final uri = Uri.parse(downloadUrl);
       final client = http.Client();
 
       final request = http.Request('GET', uri);
@@ -60,8 +59,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
 
       final stopwatch = Stopwatch()..start();
 
-      StreamSubscription? subscription;
-      subscription = streamedResponse.stream.listen(
+      streamedResponse.stream.listen(
             (chunk) async {
           bytes.addAll(chunk);
           received += chunk.length;
@@ -133,6 +131,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
         }
       }
 
+      if (!mounted) return;
       setState(() {
         statusMessage = 'Data processed and added to database.';
         isDownloading = false;
@@ -142,6 +141,7 @@ class _DownloadScreenState extends State<DownloadScreen> {
         SnackBar(content: Text('Download and import successful.')),
       );
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         statusMessage = 'Error processing data: $e';
         isDownloading = false;

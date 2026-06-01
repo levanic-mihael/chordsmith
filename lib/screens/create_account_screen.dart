@@ -4,7 +4,7 @@ import '../storage/user_storage.dart';
 import '../storage/admin_storage.dart';
 
 class CreateAccountScreen extends StatefulWidget {
-  const CreateAccountScreen({Key? key}) : super(key: key);
+  const CreateAccountScreen({super.key});
 
   @override
   State createState() => _CreateAccountScreenState();
@@ -50,6 +50,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     final isAdminValid = await adminStorage.authorizeAdmin(adminPwd);
 
     if (!isAdminValid) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -60,8 +61,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     final userStorage = UserStorage();
     await userStorage.init();
 
-    bool usernameAvailable = true;
+    final usernameAvailable = await _isUsernameAvailable(username);
     if (!usernameAvailable) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -71,6 +73,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
     final success = await userStorage.createAccount(username, password, adminPwd, adminStorage.authorizeAdmin);
 
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
     });

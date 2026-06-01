@@ -38,6 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
     widget.onSettingsChanged(_selectedLocale, _darkModeEnabled);
 
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(S.of(context).settingsSaved)),
     );
